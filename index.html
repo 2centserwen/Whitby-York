@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五月银行假期 · 行程对比</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+–page-bg: #f7f5f2;
+–ink: #1a1614;
+–ink-mid: #333;
+–ink-soft: #484040;
+
+```
+--gothic-card-border: #c8a8d8;
+--gothic-accent: #62215a;
+--gothic-accent-light: #f5eefa;
+--gothic-hero-bg: #f0e8f8;
+--gothic-gold: #7a4e08;
+--gothic-divider: #e0ccf0;
+
+--edin-card-border: #90b8d8;
+--edin-accent: #185070;
+--edin-accent-light: #e8f4fb;
+--edin-hero-bg: #dff0fa;
+--edin-gold: #6a4500;
+--edin-divider: #c0dff0;
+
+--serif: 'Playfair Display', Georgia, serif;
+--mono: 'DM Mono', monospace;
+--sans: 'DM Sans', sans-serif;
+```
+
+}
+
+html { font-size: 16px; }
+
+body {
+background: var(–page-bg);
+color: var(–ink);
+font-family: var(–sans);
+min-height: 100vh;
+padding: 2.5rem 1rem 4rem;
+}
+
+.header { text-align: center; margin-bottom: 2rem; }
+.header .eyebrow {
+font-family: var(–mono); font-size: 0.67rem; letter-spacing: 0.2em;
+text-transform: uppercase; color: #555; margin-bottom: 0.5rem;
+}
+.header h1 {
+font-family: var(–serif); font-size: clamp(1.8rem, 5vw, 2.6rem);
+font-weight: 700; color: var(–ink); line-height: 1.15;
+}
+.header .subtitle {
+font-family: var(–mono); font-size: 0.68rem; letter-spacing: 0.12em;
+color: #555; margin-top: 0.4rem;
+}
+
+.legend {
+max-width: 960px; margin: 0 auto 1.5rem;
+display: flex; gap: 1.2rem; flex-wrap: wrap; justify-content: center;
+font-size: 0.65rem; font-family: var(–mono); color: #333;
+}
+.legend-item { display: flex; align-items: center; gap: 0.4rem; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.ld-hike   { background: #b8e0a0; border: 1px solid #70a850; }
+.ld-bronte { background: #f8d8b8; border: 1px solid #c88040; }
+.ld-cost   { background: #b8d8f0; border: 1px solid #5898c8; }
+
+.cards {
+display: grid; grid-template-columns: 1fr 1fr;
+gap: 1.5rem; max-width: 960px; margin: 0 auto 2rem;
+}
+@media (max-width: 660px) { .cards { grid-template-columns: 1fr; } }
+
+.card {
+border-radius: 6px; overflow: hidden; display: flex; flex-direction: column;
+border: 2px solid; box-shadow: 0 2px 18px rgba(0,0,0,0.07); background: #ffffff;
+}
+.card-gothic { border-color: var(–gothic-card-border); }
+.card-edin   { border-color: var(–edin-card-border); }
+
+/* ── HERO — now light ── */
+.card-hero { padding: 1.5rem 1.5rem 1.25rem; position: relative; overflow: hidden; }
+.card-gothic .card-hero { background: var(–gothic-hero-bg); border-bottom: 2px solid var(–gothic-card-border); }
+.card-edin   .card-hero { background: var(–edin-hero-bg);   border-bottom: 2px solid var(–edin-card-border); }
+
+.badge {
+font-family: var(–mono); font-size: 0.57rem; letter-spacing: 0.16em;
+text-transform: uppercase; display: inline-block; padding: 2px 8px;
+margin-bottom: 0.65rem; border-radius: 2px; border: 1px solid;
+}
+.card-gothic .badge { color: #62215a; border-color: #c090c8; background: #ecddf8; }
+.card-edin   .badge { color: #185070; border-color: #80b0d0; background: #d8eef8; }
+
+.card-hero h2 { font-family: var(–serif); font-size: 1.8rem; line-height: 1.1; margin-bottom: 0.35rem; }
+.card-gothic .card-hero h2 { color: #2a0828; font-style: italic; }
+.card-edin   .card-hero h2 { color: #081828; }
+
+.tagline { font-size: 0.72rem; font-style: italic; line-height: 1.45; }
+.card-gothic .tagline { color: #5a3060; }
+.card-edin   .tagline { color: #204868; }
+
+/* ── COST SUMMARY BANNER ── */
+.cost-banner { padding: 0.85rem 1.4rem; border-bottom: 1px solid; }
+.card-gothic .cost-banner { background: #f8f0fc; border-color: var(–gothic-divider); }
+.card-edin   .cost-banner { background: #edf6fc; border-color: var(–edin-divider); }
+
+.cost-banner-title {
+font-family: var(–mono); font-size: 0.56rem; letter-spacing: 0.16em;
+text-transform: uppercase; margin-bottom: 0.55rem;
+}
+.card-gothic .cost-banner-title { color: var(–gothic-accent); }
+.card-edin   .cost-banner-title { color: var(–edin-accent); }
+
+.cost-total-row { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem; }
+.cost-total-num { font-family: var(–serif); font-size: 1.5rem; font-weight: 700; line-height: 1; }
+.card-gothic .cost-total-num { color: var(–gothic-accent); }
+.card-edin   .cost-total-num { color: var(–edin-accent); }
+.cost-total-label { font-size: 0.68rem; color: #444; }
+
+.cost-rows { display: flex; flex-direction: column; gap: 0.3rem; }
+.cost-row {
+display: flex; justify-content: space-between; align-items: baseline;
+font-size: 0.67rem; color: #333; border-bottom: 1px dotted #ccc; padding-bottom: 0.2rem;
+}
+.cost-row-label { flex: 1; }
+.cost-row-val { font-family: var(–mono); font-size: 0.64rem; text-align: right; white-space: nowrap; }
+.card-gothic .cost-row-val { color: var(–gothic-accent); }
+.card-edin   .cost-row-val { color: var(–edin-accent); }
+.cost-row-val.free-tag { color: #1a6020; }
+
+.cost-note { font-size: 0.62rem; color: #444; font-style: italic; margin-top: 0.45rem; line-height: 1.4; }
+
+/* ── BODY ── */
+.card-body { padding: 1.2rem 1.4rem; flex: 1; }
+
+.day { display: flex; gap: 0.85rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid; }
+.card-gothic .day { border-color: var(–gothic-divider); }
+.card-edin   .day { border-color: var(–edin-divider); }
+.day:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.day-num {
+font-family: var(–mono); font-size: 0.6rem; letter-spacing: 0.08em; line-height: 1.3;
+padding-top: 3px; flex-shrink: 0; width: 2.1rem; text-align: center;
+}
+.card-gothic .day-num { color: var(–gothic-accent); }
+.card-edin   .day-num { color: var(–edin-accent); }
+
+.day-title { font-family: var(–serif); font-size: 0.9rem; font-weight: 700; margin-bottom: 0.32rem; color: #111; line-height: 1.2; }
+
+.day-stops { list-style: none; padding: 0; margin: 0; }
+.day-stops li { font-size: 0.7rem; line-height: 1.6; color: #333; display: flex; align-items: flex-start; gap: 0.4rem; }
+.stop-icon { font-size: 0.58rem; margin-top: 5px; flex-shrink: 0; }
+.card-gothic .stop-icon { color: var(–gothic-accent); }
+.card-edin   .stop-icon { color: var(–edin-accent); }
+
+/* ── CALLOUT BLOCKS ── */
+.callout-block { margin: 0.4rem 0 0.25rem 0; border-radius: 4px; overflow: hidden; border: 1px solid; }
+.callout-hike   { border-color: #80c060; }
+.callout-bronte { border-color: #d09050; }
+.callout-hike   .callout-pill { background: #d8f0c0; color: #1a4810; }
+.callout-bronte .callout-pill { background: #fce0b8; color: #5a2800; }
+.callout-hike   .callout-body { background: #f0fae8; color: #222; }
+.callout-bronte .callout-body { background: #fef5e8; color: #222; }
+
+.callout-pill { display: flex; align-items: center; gap: 0.35rem; font-family: var(–mono); font-size: 0.6rem; letter-spacing: 0.06em; padding: 3px 10px; }
+.callout-body { font-size: 0.68rem; line-height: 1.55; padding: 5px 10px 6px; }
+
+/* ── LOGISTICS ── */
+.logistics { padding: 0.85rem 1.4rem; border-top: 1px solid; }
+.card-gothic .logistics { border-color: var(–gothic-divider); background: var(–gothic-accent-light); }
+.card-edin   .logistics { border-color: var(–edin-divider);   background: var(–edin-accent-light); }
+
+.logistics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem 1rem; }
+.logi-label { font-family: var(–mono); font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 1px; }
+.card-gothic .logi-label { color: var(–gothic-accent); }
+.card-edin   .logi-label { color: var(–edin-accent); }
+.logi-val { font-size: 0.68rem; line-height: 1.4; color: #333; }
+
+/* ── VERDICT ── */
+.verdict { padding: 0.9rem 1.4rem 1.1rem; border-top: 1px solid; }
+.card-gothic .verdict { border-color: var(–gothic-divider); }
+.card-edin   .verdict { border-color: var(–edin-divider); }
+
+.verdict-title { font-family: var(–mono); font-size: 0.55rem; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 0.55rem; }
+.card-gothic .verdict-title { color: var(–gothic-gold); }
+.card-edin   .verdict-title { color: var(–edin-gold); }
+
+.pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.pc-col-title { font-size: 0.57rem; font-family: var(–mono); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.28rem; }
+.pc-col-title.pro { color: #1a5c1e; }
+.pc-col-title.con { color: #7a1a1a; }
+
+.pc-list { list-style: none; padding: 0; }
+.pc-list li { font-size: 0.66rem; line-height: 1.55; color: #333; display: flex; gap: 0.3rem; }
+.pro-list li::before { content: ‘✦’; color: #1a5c1e; font-size: 0.48rem; margin-top: 5px; flex-shrink: 0; }
+.con-list li::before { content: ‘◆’; color: #7a1a1a; font-size: 0.48rem; margin-top: 5px; flex-shrink: 0; }
+
+.footnote { max-width: 960px; margin: 0 auto; font-family: var(–mono); font-size: 0.59rem; color: #555; text-align: center; letter-spacing: 0.05em; line-height: 1.8; }
+</style>
+
+</head>
+<body>
+
+<div class="header">
+  <p class="eyebrow">银行假期周末 · 2026年5月2–4日</p>
+  <h1>惠特比（Whitby）哥特路线 <em style="font-weight:400">vs</em> 爱丁堡（Edinburgh）</h1>
+  <p class="subtitle">从温莎（Windsor）出发 · 3天行程 · 全程乘火车 · 含徒步 + 勃朗特乡村 + 费用</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot ld-hike"></div> 可选徒步</div>
+  <div class="legend-item"><div class="legend-dot ld-bronte"></div> 《呼啸山庄》/ 勃朗特相关（可选）</div>
+  <div class="legend-item"><div class="legend-dot ld-cost"></div> 人均费用估算</div>
+</div>
+
+<div class="cards">
+
+  <!-- ══════════ WHITBY CARD -->
+
+  <div class="card card-gothic">
+    <div class="card-hero">
+      <div class="badge">方案 A · 约克郡哥特</div>
+      <h2>惠特比（Whitby）<br>&amp; 荒原</h2>
+      <p class="tagline">蒸汽火车、荒原徒步、勃朗特故乡、修道院废墟、海雀，以及数百名身着维多利亚丧服的哥特人</p>
+    </div>
+
+```
+<!-- COST SUMMARY -->
+<div class="cost-banner">
+  <div class="cost-banner-title">💷 人均费用估算</div>
+  <div class="cost-total-row">
+    <div class="cost-total-num">~£355–395</div>
+    <div class="cost-total-label">人均总费用（含 Railcard 折扣后火车票价）</div>
+  </div>
+  <div class="cost-rows">
+    <div class="cost-row">
+      <span class="cost-row-label">温莎（Windsor）→ 约克（York）火车（LNER，Railcard 后）</span>
+      <span class="cost-row-val">~£23–37</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">约克（York）→ 伦敦（London）→ 温莎（Windsor）返程火车（Railcard 后）</span>
+      <span class="cost-row-val">~£23–37</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">NYMR 全日通票（蒸汽火车，不接受 Railcard）</span>
+      <span class="cost-row-val">~£45</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">惠特比（Whitby）→ 宾普顿（Bempton）火车（Railcard 后）</span>
+      <span class="cost-row-val">~£10</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">宾普顿（Bempton）→ 约克（York）火车（Railcard 后）</span>
+      <span class="cost-row-val">~£8</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">约克（York）→ 霍沃思（Haworth）火车 + 公交车（Railcard 后）</span>
+      <span class="cost-row-val">~£8</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">惠特比（Whitby）住宿1晚（£160/2人，即£80/人）✓</span>
+      <span class="cost-row-val">£80</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">约克（York）住宿1晚（£150/2人，即£75/人）</span>
+      <span class="cost-row-val">£75</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">勃朗特故居博物馆（Brontë Parsonage Museum）门票</span>
+      <span class="cost-row-val">£13</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">惠特比修道院（Whitby Abbey，英格兰遗产）</span>
+      <span class="cost-row-val">~£10</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">RSPB 宾普顿悬崖（Bempton Cliffs，停车/入场）</span>
+      <span class="cost-row-val">~£5</span>
+    </div>
+
+    <div class="cost-row">
+      <span class="cost-row-label">餐饮（3天，适中消费）</span>
+      <span class="cost-row-val">~£80–100</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">徒步、荒原漫步、Cleveland Way</span>
+      <span class="cost-row-val free-tag">免费</span>
+    </div>
+  </div>
+  <div class="cost-note">所有 National Rail 火车票价已含 Railcard 三分之一折扣。NYMR 遗产蒸汽火车不接受 Railcard。</div>
+</div>
+
+<div class="card-body">
+
+  <div class="day">
+    <div class="day-num">周五<br>02</div>
+    <div class="day-content">
+      <div class="day-title">温莎（Windsor）→ 约克（York）→ 荒原 → 惠特比（Whitby）</div>
+      <ul class="day-stops">
+        <li><span class="stop-icon">▸</span>温莎及伊顿河滨站（Windsor &amp; Eton Riverside）→ 伦敦（London）→ 约克（York）乘 LNER 火车（约2小时）</li>
+        <li><span class="stop-icon">▸</span>约克（York）→ 皮克林（Pickering）乘公交车/出租车（约45分钟）</li>
+        <li><span class="stop-icon">▸</span>NYMR 蒸汽火车 皮克林（Pickering）→ 戈斯兰（Goathland）（约40分钟）——在此下车</li>
+      </ul>
+      <div class="callout-block callout-hike" style="margin-top:0.35rem">
+        <div class="callout-pill">🥾 戈斯兰（Goathland）荒原徒步 · 2–3小时 · 中等难度</div>
+        <div class="callout-body">Mallyan Spout 瀑布 → 罗马古道 → 开阔荒原。可在格罗斯蒙特（Grosmont）重新上车，或继续乘火车前往惠特比（Whitby）。</div>
+      </div>
+      <ul class="day-stops" style="margin-top:0.35rem">
+        <li><span class="stop-icon">▸</span>下午抵达惠特比（Whitby）——哥特周末正如火如荼：Bizarre Bazaar 集市、乐队演出、修道院黄昏剪影</li>
+        <li><span class="stop-icon">▸</span>住宿惠特比（Whitby）✓</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="day">
+    <div class="day-num">周六<br>03</div>
+    <div class="day-content">
+      <div class="day-title">罗宾汉湾（Robin Hood's Bay）海岸徒步 + 海雀 → 约克（York）</div>
+      <div class="callout-block callout-hike">
+        <div class="callout-pill">🥾 Cleveland Way 海岸线 · 约4英里 · 轻松至中等</div>
+        <div class="callout-body">惠特比（Whitby）→ 罗宾汉湾（Robin Hood's Bay）沿悬崖顶徒步，俯瞰北海。乘公交车返回惠特比（约20分钟），再乘火车南下前往宾普顿（Bempton）。</div>
+      </div>
+      <ul class="day-stops" style="margin-top:0.35rem">
+        <li><span class="stop-icon">▸</span>惠特比（Whitby）→ 斯卡伯勒（Scarborough）→ 宾普顿（Bempton）乘火车（约1.5小时）</li>
+        <li><span class="stop-icon">▸</span>RSPB 宾普顿悬崖（Bempton Cliffs）：海雀、鲣鸟、三趾鸥——旺季观鸟</li>
+        <li><span class="stop-icon">▸</span>宾普顿（Bempton）→ 布里德灵顿（Bridlington）→ 约克（York）（约1.5小时）。住宿约克（York）。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="day">
+    <div class="day-num">周日<br>04</div>
+    <div class="day-content">
+      <div class="day-title">霍沃思（Haworth）+ 勃朗特荒原 → 约克（York）→ 温莎（Windsor）</div>
+      <ul class="day-stops">
+        <li><span class="stop-icon">▸</span>火车 约克（York）→ 基利（Keighley），再乘公交车至霍沃思（Haworth）（共约1小时）</li>
+      </ul>
+      <div class="callout-block callout-bronte">
+        <div class="callout-pill">📖 霍沃思（Haworth）——勃朗特故乡核心 · 门票£13</div>
+        <div class="callout-body"><strong>勃朗特故居博物馆（Brontë Parsonage Museum）</strong>（成人£13）——艾米莉写作《呼啸山庄》之地，馆藏全球最大的勃朗特文物。石板路高街自1840年代几乎未变。<strong>圣迈克尔教堂（St Michael's Church）</strong>——艾米莉长眠于此。<em>2026年5月特展：《Haunt Me Then... and Now》——百年《呼啸山庄》改编史，含2026年新片。</em></div>
+      </div>
+      <div class="callout-block callout-hike" style="margin-top:0.25rem">
+        <div class="callout-pill">🥾 Top Withens 徒步 · 约4英里 · 中等难度 · 免费</div>
+        <div class="callout-body">霍沃思（Haworth）→ 勃朗特瀑布（Brontë Waterfall）→ 勃朗特桥（Brontë Bridge）→ <strong>Top Withens</strong>（据说是书中恩肖庄园原型的废弃农舍）。石楠荒原尽显野性。附近的<strong>Ponden Hall</strong>据说是画眉田庄（Thrushcross Grange）的原型。</div>
+      </div>
+      <ul class="day-stops" style="margin-top:0.35rem">
+        <li><span class="stop-icon">▸</span>乘公交车返回霍沃思（Haworth）→ 基利（Keighley）→ 利兹（Leeds）→ 约克（York）（约1.5小时），再乘火车 约克（York）→ 伦敦（London）→ 温莎（Windsor）（约2.5小时）</li>
+      </ul>
+      <div class="callout-block callout-bronte" style="margin-top:0.35rem">
+        <div class="callout-pill">📖 第3天备选：赫尔姆斯利（Helmsley）+ 里沃克斯修道院（Rievaulx Abbey）</div>
+        <div class="callout-body">公交车 约克（York）→ 赫尔姆斯利（Helmsley）（约45分钟）。沿 Cleveland Way 徒步至12世纪西多会修道院废墟，途经赫尔姆斯利城堡（Helmsley Castle）。若更偏爱废墟而非文学朝圣，选此方案；若同伴是勃朗特书迷，则选霍沃思（Haworth）。</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="logistics">
+  <div class="logistics-grid">
+    <div class="logi-item">
+      <div class="logi-label">行程复杂度</div>
+      <div class="logi-val">高——多段交通，需多次换乘公交车</div>
+    </div>
+    <div class="logi-item">
+      <div class="logi-label">必订项目</div>
+      <div class="logi-val">NYMR（nymr.co.uk）蒸汽火车票；勃朗特博物馆提前订票</div>
+    </div>
+    <div class="logi-item">
+      <div class="logi-label">住宿夜数</div>
+      <div class="logi-val">惠特比（Whitby）1晚（已预订 ✓），约克（York）1晚 £75/人</div>
+    </div>
+    <div class="logi-item">
+      <div class="logi-label">免费亮点</div>
+      <div class="logi-val">全部徒步、Bizarre Bazaar 集市、罗宾汉湾（Robin Hood's Bay）</div>
+    </div>
+  </div>
+</div>
+
+<div class="verdict">
+  <div class="verdict-title">快速总结</div>
+  <div class="pros-cons">
+    <div>
+      <div class="pc-col-title pro">选择理由</div>
+      <ul class="pc-list pro-list">
+        <li>与哥特周末撞期，可遇不可求</li>
+        <li>蒸汽火车 + 荒原徒步，体验绝佳</li>
+        <li>5月正值海雀观赏旺季</li>
+        <li>霍沃思（Haworth）是勃朗特朝圣首选</li>
+        <li>每天都有截然不同的体验</li>
+      </ul>
+    </div>
+    <div>
+      <div class="pc-col-title con">注意事项</div>
+      <ul class="pc-list con-list">
+        <li>全程交通安排较为繁琐</li>
+        <li>第3天需在霍沃思（Haworth）与赫尔姆斯利（Helmsley）之间二选一</li>
+        <li>银行假期 LNER 火车较拥挤</li>
+      </ul>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ══════════ EDINBURGH CARD -->
+
+  <div class="card card-edin">
+    <div class="card-hero">
+      <div class="badge">方案 B · 苏格兰首都</div>
+      <h2>爱丁堡（Edinburgh）</h2>
+      <p class="tagline">火山地貌的天际线、中世纪小巷、世界级博物馆——城内城外皆可真正徒步</p>
+    </div>
+
+```
+<!-- COST SUMMARY -->
+<div class="cost-banner">
+  <div class="cost-banner-title">💷 人均费用估算</div>
+  <div class="cost-total-row">
+    <div class="cost-total-num">~£370–405</div>
+    <div class="cost-total-label">人均总费用（含 Railcard 折扣后火车票价）</div>
+  </div>
+  <div class="cost-rows">
+    <div class="cost-row">
+      <span class="cost-row-label">温莎（Windsor）→ 爱丁堡（Edinburgh）火车（LNER，Railcard 后）</span>
+      <span class="cost-row-val">~£30–47</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">爱丁堡（Edinburgh）→ 温莎（Windsor）返程火车（Railcard 后）</span>
+      <span class="cost-row-val">~£30–47</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">爱丁堡（Edinburgh）住宿（2晚，£390/2人，即£195/人）</span>
+      <span class="cost-row-val">£195</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">爱丁堡城堡（Edinburgh Castle，网上购票）</span>
+      <span class="cost-row-val">£21.50</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">苏格兰国家博物馆（Scottish National Museum）</span>
+      <span class="cost-row-val free-tag">免费</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">苏格兰国家美术馆（National Gallery of Scotland）</span>
+      <span class="cost-row-val free-tag">免费</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">亚瑟王座（Arthur's Seat）徒步</span>
+      <span class="cost-row-val free-tag">免费</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">Water of Leith 步道</span>
+      <span class="cost-row-val free-tag">免费</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">奔塔兰山（Pentland Hills，公交车约£3来回）</span>
+      <span class="cost-row-val free-tag">~£3</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">可选：霍沃思（Haworth）一日游（火车，Railcard 后）</span>
+      <span class="cost-row-val">+£40–53</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">勃朗特故居博物馆（如选霍沃思一日游）</span>
+      <span class="cost-row-val">+£13</span>
+    </div>
+    <div class="cost-row">
+      <span class="cost-row-label">餐饮（3天，适中消费）</span>
+      <span class="cost-row-val">~£80–100</span>
+    </div>
+  </div>
+  <div class="cost-note">所有 National Rail 火车票价已含 Railcard 三分之一折扣。NYMR 遗产蒸汽火车不接受 Railcard。</div>
+</div>
+
+<div class="card-body">
+
+  <div class="day">
+    <div class="day-num">周五<br>02</div>
+    <div class="day-content">
+      <div class="day-title">温莎（Windsor）→ 爱丁堡（Edinburgh）→ 亚瑟王座（Arthur's Seat）</div>
+      <ul class="day-stops">
+        <li><span class="stop-icon">▸</span>温莎及伊顿河滨站（Windsor &amp; Eton Riverside）→ 国王十字站（King's Cross）（约50分钟）</li>
+        <li><span class="stop-icon">▸</span>LNER 国王十字站（King's Cross）→ 约克（York）（约2小时）——提前购票</li>
+      </ul>
+      <div class="callout-block" style="margin-top:0.35rem; border-color:#d4a820;">
+        <div class="callout-pill" style="background:#fff3cc; color:#6b4400;">⚠ 施工封线：约克（York）→ 达灵顿（Darlington）须换乘铁路替代公交车（约1小时）</div>
+        <div class="callout-body" style="background:#fffae8; color:#333;">铁路改善工程横跨整个银行假期（2–4 May）。LNER 南向列车终止于约克，替代公交衔接至达灵顿，再转乘北向火车前往爱丁堡（Edinburgh）。</div>
+      </div>
+      <ul class="day-stops" style="margin-top:0.35rem">
+        <li><span class="stop-icon">▸</span>达灵顿（Darlington）→ 爱丁堡威弗利站（Edinburgh Waverley）乘火车（约1.5小时）</li>
+        <li><span class="stop-icon">▸</span>全程约6–6.5小时，约下午4–5点抵达。前往霍利鲁德公园（Holyrood Park）</li>
+      </ul>
+      <div class="callout-block callout-hike" style="margin-top:0.35rem">
+        <div class="callout-pill">🥾 亚瑟王座（Arthur's Seat）环线 · 2.8英里 · 中等难度 · 免费</div>
+        <div class="callout-body">途经圣安东尼教堂遗址（St Anthony's Chapel ruins，半山腰的中世纪废墟）攀至251米山顶——城市与海岸360°全景。沿 Salisbury Crags 山脊返回，俯瞰爱丁堡（Edinburgh）全貌。抵达当天傍晚的绝佳活动。</div>
+      </div>
+      <ul class="day-stops" style="margin-top:0.35rem">
+        <li><span class="stop-icon">▸</span>在格拉斯马基特（Grassmarket）或利斯（Leith）用晚餐。住宿爱丁堡（Edinburgh）。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="day">
+    <div class="day-num">周六<br>03</div>
+    <div class="day-content">
+      <div class="day-title">城堡、旧城区 &amp; Water of Leith 步道</div>
+      <ul class="day-stops">
+        <li><span class="stop-icon">▸</span>上午：爱丁堡城堡（Edinburgh Castle）——£21.50，需网上提前购票（旺季易售罄）</li>
+        <li><span class="stop-icon">▸</span>皇家大道（Royal Mile）→ 格雷弗莱尔斯教堂院（Greyfriars Kirkyard）→ 苏格兰国家博物馆（Scottish National Museum，免费）</li>
+      </ul>
+      <div class="callout-block callout-bronte" style="margin-top:0.35rem">
+        <div class="callout-pill">📖 《呼啸山庄》相关说明</div>
+        <div class="callout-body">亚瑟王座（Arthur's Seat）火山地貌的阴郁气质与爱丁堡（Edinburgh）的哥特小巷，正是勃朗特笔下的精髓——许多学者认为苏格兰壮阔风景曾直接影响艾米莉。如想进行完整的文学朝圣，可考虑将第3天改为霍沃思（Haworth）一日游（替代或叠加奔塔兰山徒步）。</div>
+      </div>
+      <div class="callout-block callout-hike" style="margin-top:0.25rem">
+        <div class="callout-pill">🥾 Water of Leith 步道 · 约3英里 · 轻松 · 免费</div>
+        <div class="callout-body">迪恩村（Dean Village）→ 斯托克布里奇（Stockbridge）→ 皇家植物园（Royal Botanic Garden）。穿城而过的野趣河岸步道，完全不像城市漫步。终点附近有斯托克布里奇（Stockbridge）的优质餐厅。</div>
+      </div>
+      <ul class="day-stops" style="margin-top:0.35rem">
+        <li><span class="stop-icon">▸</span>傍晚：在维多利亚街（Victoria Street）或科格特街（Cowgate）品味酒吧文化</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="day">
+    <div class="day-num">周日<br>04</div>
+    <div class="day-content">
+      <div class="day-title">奔塔兰山（Pentland Hills）徒步 或 霍沃思（Haworth）→ 温莎（Windsor）</div>
+      <div class="callout-block callout-hike">
+        <div class="callout-pill">🥾 方案A：奔塔兰山（Pentland Hills） · 5–8英里 · 中等难度 · 约£3公交</div>
+        <div class="callout-body">乘公交车 → 弗洛特斯通（Flotterstone）（约30分钟）。攀登斯卡尔德山（Scald Law，579米）山顶，晴天可远眺爱丁堡（Edinburgh）至苏格兰高地（Highlands）。乘公交返城赶下午火车。</div>
+      </div>
+      <div class="callout-block callout-bronte" style="margin-top:0.25rem">
+        <div class="callout-pill">📖 方案B：霍沃思（Haworth）一日游 · 额外约£75/人 · 行程较长</div>
+        <div class="callout-body">爱丁堡（Edinburgh）→ 利兹（Leeds）（约2.5小时）→ 基利（Keighley）→ 霍沃思（Haworth）。游览勃朗特故居博物馆（Brontë Parsonage Museum，£13）+ Top Withens 荒原徒步。当晚返回：爱丁堡（Edinburgh）→ 国王十字站（King's Cross）→ 温莎（Windsor）（约6小时）。可行但行程紧凑——对《呼啸山庄》真爱粉来说值得一试。</div>
+      </div>
+      <div class="callout-block" style="margin-top:0.35rem; border-color:#d4a820;">
+        <div class="callout-pill" style="background:#fff3cc; color:#6b4400;">⚠ 返程同样受施工影响</div>
+        <div class="callout-body" style="background:#fffae8; color:#333;">威弗利站（Waverley）→ 达灵顿（Darlington）火车，再乘替代公交至约克（York），再乘 LNER → 国王十字站（King's Cross）→ 温莎（Windsor）——全程约6–7小时。</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="logistics">
+  <div class="logistics-grid">
+    <div class="logi-item">
+      <div class="logi-label">行程复杂度</div>
+      <div class="logi-val">中——因施工需在约克（York）换乘替代公交车</div>
+    </div>
+    <div class="logi-item">
+      <div class="logi-label">必订项目</div>
+      <div class="logi-val">LNER 提前购票；爱丁堡城堡（Edinburgh Castle）限时票</div>
+    </div>
+    <div class="logi-item">
+      <div class="logi-label">住宿夜数</div>
+      <div class="logi-val">爱丁堡（Edinburgh）2晚，£390/2人（£195/人）</div>
+    </div>
+    <div class="logi-item">
+      <div class="logi-label">免费亮点</div>
+      <div class="logi-val">全部徒步、3座主要博物馆、皇家大道（Royal Mile）、格雷弗莱尔斯（Greyfriars）</div>
+    </div>
+  </div>
+  <div style="margin-top:0.6rem; padding:0.55rem 0.7rem; background:#fff8e0; border:1px solid #d4a820; border-left:3px solid #a07800; border-radius:3px; font-size:0.67rem; color:#3a2c00; line-height:1.5;">
+    <strong>⚠ 5月2–4日施工影响：</strong>约克（York）至达灵顿（Darlington）段铁路封闭，LNER 南向列车终止于约克，北向列车起始于达灵顿或诺塞勒顿（Northallerton）。需乘铁路替代公交车衔接（约1小时），全程约6–6.5小时，比正常多出约1.5–2小时。请在购票时通过 National Rail 确认具体班次。
+  </div>
+</div>
+
+<div class="verdict">
+  <div class="verdict-title">快速总结</div>
+  <div class="pros-cons">
+    <div>
+      <div class="pc-col-title pro">选择理由</div>
+      <ul class="pc-list pro-list">
+        <li>住宿无需抢订，从容规划</li>
+        <li>城市内部徒步体验独一无二</li>
+        <li>3座主要博物馆均免费，性价比极高</li>
+        <li>住宿无任何压力</li>
+        <li>霍沃思（Haworth）仍可作一日游</li>
+      </ul>
+    </div>
+    <div>
+      <div class="pc-col-title con">注意事项</div>
+      <ul class="pc-list con-list">
+        <li>施工致约克（York）→ 达灵顿（Darlington）须换乘替代公交，全程延长约1.5–2小时</li>
+        <li>来回各约6–6.5小时，大幅压缩可用时间</li>
+        <li>没有内置节日氛围或特色活动</li>
+        <li>城堡限时票会售罄——现在就订</li>
+        <li>爱丁堡（Edinburgh）随时可去，但哥特周末不等人</li>
+      </ul>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+
+</div>
+
+<p class="footnote">
+  NYMR: nymr.co.uk · WGW 2026: whitbygothweekend.co.uk · RSPB Bempton: rspb.org.uk · Brontë Parsonage: bronte.org.uk · Edinburgh Castle: edinburghcastle.scot<br>
+  所有费用均为英镑人均估算 · 火车票价基于提前购票 · 2026年《呼啸山庄》电影热映，建议提前预订勃朗特博物馆门票
+</p>
+
+</body>
+</html>
