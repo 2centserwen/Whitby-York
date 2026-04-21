@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yorkshire & Whitby · May 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1210;
+    --paper: #f5f0e8;
+    --aged: #e8dfc8;
+    --moor: #4a5240;
+    --moor-light: #7a8a6a;
+    --goth: #2a1828;
+    --goth-accent: #8a4060;
+    --goth-light: #c88090;
+    --sea: #2a4858;
+    --sea-light: #6a9aaa;
+    --bronte: #5a3a18;
+    --bronte-light: #c0904a;
+    --rule: #c8b890;
+    --mono: 'DM Mono', monospace;
+    --serif: 'Playfair Display', serif;
+    --body: 'Crimson Pro', Georgia, serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 1rem;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--goth);
+    color: var(--paper);
+    padding: 3.5rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .masthead::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(200,184,144,0.08) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(200,184,144,0.08) 40px);
+    pointer-events: none;
+  }
+  .masthead-rule {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--goth-light);
+    margin-bottom: 1rem;
+  }
+  .masthead h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    color: var(--paper);
+  }
+  .masthead h1 em {
+    font-style: italic;
+    color: var(--goth-light);
+  }
+  .masthead-sub {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    color: var(--rule);
+    margin-top: 1rem;
+  }
+  .masthead-ornament {
+    color: var(--goth-light);
+    font-size: 1.4rem;
+    margin: 1rem 0 0;
+    opacity: 0.6;
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  /* ── DAY SECTIONS ── */
+  .day-section {
+    padding: 3rem 0 2rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .day-section:last-of-type { border-bottom: none; }
+
+  .day-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid;
+  }
+  .day-1 .day-header { border-color: var(--goth-accent); }
+  .day-2 .day-header { border-color: var(--sea); }
+  .day-3 .day-header { border-color: var(--bronte); }
+
+  .day-num {
+    font-family: var(--serif);
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.15;
+    flex-shrink: 0;
+  }
+  .day-1 .day-num { color: var(--goth-accent); }
+  .day-2 .day-num { color: var(--sea); }
+  .day-3 .day-num { color: var(--bronte); }
+
+  .day-header-text {}
+  .day-date {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 0.2rem;
+  }
+  .day-title {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+  .day-1 .day-title { color: var(--goth); }
+  .day-2 .day-title { color: var(--sea); }
+  .day-3 .day-title { color: var(--bronte); }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    position: relative;
+    padding-left: 6rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 4.5rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 1px;
+    background: var(--rule);
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 1.4rem;
+    display: flex;
+    gap: 1.2rem;
+    align-items: flex-start;
+  }
+
+  .tl-time {
+    position: absolute;
+    left: -5.8rem;
+    top: 0.05rem;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    text-align: right;
+    width: 5rem;
+    color: #888;
+    white-space: nowrap;
+  }
+
+  .tl-dot {
+    position: absolute;
+    left: -1.55rem;
+    top: 0.38rem;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1.5px solid;
+    background: var(--paper);
+    flex-shrink: 0;
+  }
+  .day-1 .tl-dot { border-color: var(--goth-accent); }
+  .day-2 .tl-dot { border-color: var(--sea); }
+  .day-3 .tl-dot { border-color: var(--bronte); }
+  .tl-dot.filled { background: currentColor; }
+
+  .tl-content {}
+  .tl-label {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.15rem;
+  }
+  .day-1 .tl-label { color: var(--goth-accent); }
+  .day-2 .tl-label { color: var(--sea-light); }
+  .day-3 .tl-label { color: var(--bronte-light); }
+
+  .tl-main {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .tl-sub {
+    font-size: 0.85rem;
+    color: #666;
+    font-style: italic;
+    margin-top: 0.1rem;
+    line-height: 1.4;
+  }
+
+  /* callout blocks */
+  .tl-callout {
+    margin-top: 0.4rem;
+    padding: 0.5rem 0.8rem;
+    border-left: 2px solid;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    border-radius: 0 3px 3px 0;
+  }
+  .callout-goth { border-color: var(--goth-accent); background: rgba(138,64,96,0.06); color: var(--goth); }
+  .callout-sea  { border-color: var(--sea-light);   background: rgba(42,72,88,0.06);  color: var(--sea); }
+  .callout-moor { border-color: var(--moor-light);  background: rgba(74,82,64,0.06);  color: var(--moor); }
+  .callout-bronte { border-color: var(--bronte-light); background: rgba(90,58,24,0.06); color: var(--bronte); }
+  .callout-warn { border-color: #c0901a; background: rgba(192,144,26,0.07); color: #704800; }
+
+  .callout-pill {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 400;
+    margin-bottom: 0.2rem;
+    opacity: 0.7;
+  }
+
+  /* ── TRANSPORT BADGE ── */
+  .transport {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-left: 0.4rem;
+  }
+  .t-train { background: #1a3050; color: #a0c8e8; }
+  .t-bus   { background: #2a4820; color: #90c870; }
+  .t-walk  { background: #3a2010; color: #d09060; }
+  .t-uber  { background: #101010; color: #a0a0a0; }
+  .t-nymr  { background: #4a1020; color: #e08060; }
+
+  /* ── DIVIDER / SECTION LABEL ── */
+  .section-ornament {
+    text-align: center;
+    padding: 2rem 0 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--rule);
+  }
+
+  /* ── NOTES PANEL ── */
+  .notes-panel {
+    background: var(--aged);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 1.2rem 1.5rem;
+    margin-top: 1.5rem;
+  }
+  .notes-panel h3 {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 0.8rem;
+  }
+  .notes-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.5rem;
+  }
+  .notes-list li {
+    font-size: 0.82rem;
+    color: #555;
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+  .notes-list li::before {
+    content: '→';
+    color: var(--rule);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    flex-shrink: 0;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--goth);
+    color: var(--rule);
+    text-align: center;
+    padding: 2rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    line-height: 2;
+  }
+
+  @media (max-width: 600px) {
+    .timeline { padding-left: 4.5rem; }
+    .tl-time { left: -4.5rem; width: 3.8rem; font-size: 0.55rem; }
+    .timeline::before { left: 3.3rem; }
+    .tl-dot { left: -1.3rem; }
+    .day-num { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-rule">银行假期 · 行程手册</div>
+  <h1>Yorkshire <em>&amp; Whitby</em></h1>
+  <div class="masthead-sub">May 2 — 4, 2026 &nbsp;·&nbsp; Windsor → York → Whitby → Bempton → York → Haworth → Leeds → Windsor</div>
+  <div class="masthead-ornament">✦ &nbsp; ✦ &nbsp; ✦</div>
+</div>
+
+<div class="container">
+
+  <!-- ══════════ DAY 1 ══════════ -->
+  <section class="day-section day-1">
+    <div class="day-header">
+      <div class="day-num">1</div>
+      <div class="day-header-text">
+        <div class="day-date">Friday 2 May 2026</div>
+        <div class="day-title">Windsor → Malton → Pickering → Whitby</div>
+      </div>
+    </div>
+
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-time">08:20</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">出发</div>
+          <div class="tl-main">Windsor & Eton Central <span class="transport t-train">🚂 Train</span></div>
+          <div class="tl-sub">Slough → London Paddington → King's Cross → York → Malton</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">12:34</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-label">抵达</div>
+          <div class="tl-main">Malton Station</div>
+          <div class="tl-callout callout-goth">
+            <div class="callout-pill">🍽 午餐 · Malton Food Town</div>
+            Malton 以食品市场闻名，号称"约克郡美食之都"。在站附近觅食，约1小时。
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">13:20</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-label">交通</div>
+          <div class="tl-main">Malton Bus Station Stand 1 <span class="transport t-bus">🚌 840</span> <span class="transport t-uber">🚗 Uber</span></div>
+          <div class="tl-sub">840路公交 Malton → Pickering Eastgate Square（约37分钟）<br>如有Uber则优先；否则乘公交，14:53到达</div>
+          <div class="tl-callout callout-warn">
+            <div class="callout-pill">⚠ 银行假期</div>
+            840路可能减班，建议提前查 transdevbus.co.uk 或预约当地出租车
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">13:37<br><span style="font-size:0.55rem;opacity:0.6">(14:53)</span></div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-label">抵达</div>
+          <div class="tl-main">Pickering, Eastgate Square <span class="transport t-walk">🚶 10 min</span></div>
+          <div class="tl-sub">步行10分钟至 NYMR 皮克林站 · 窗口现买票，凭840路优惠券享8折</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">15:10</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">蒸汽火车</div>
+          <div class="tl-main">Pickering → Whitby <span class="transport t-nymr">🚂 NYMR</span></div>
+          <div class="tl-sub">红色时刻表 · 全程约1小时50分钟 · 途经戈斯兰（Goathland）站</div>
+          <div class="tl-callout callout-moor">
+            <div class="callout-pill">🎩 Whitby Goth Weekend</div>
+            5月1–3日 WGW 春季 · Bizarre Bazaar 集市、修道院黄昏、乐队演出
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">16:55</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">抵达 · 住宿</div>
+          <div class="tl-main">Whitby ✓ 已预订（£160/2人）</div>
+          <div class="tl-callout callout-goth">
+            <div class="callout-pill">🍽 晚餐 · Whitby</div>
+            Whitby 著名炸鱼薯条，或修道院附近餐厅。WGW 气氛最浓的一晚。
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════ DAY 2 ══════════ -->
+  <section class="day-section day-2">
+    <div class="day-header">
+      <div class="day-num">2</div>
+      <div class="day-header-text">
+        <div class="day-date">Saturday 3 May 2026</div>
+        <div class="day-title">Whitby → Scarborough → Bempton Cliffs → York</div>
+      </div>
+    </div>
+
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-time">上午</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-label">自由活动</div>
+          <div class="tl-main">Whitby 上午</div>
+          <div class="tl-sub">WGW 最后一天 · 修道院 · 199级台阶 · 港口散步</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">12:07</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">出发</div>
+          <div class="tl-main">Whitby Bus Station <span class="transport t-bus">🚌 X93</span></div>
+          <div class="tl-sub">X93 路公交 → Scarborough（约1小时）· 银行假期按周日时刻表运行</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">13:09</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-label">抵达</div>
+          <div class="tl-main">Scarborough Railway Station</div>
+          <div class="tl-callout callout-sea">
+            <div class="callout-pill">🍽 午餐 · Scarborough</div>
+            站附近咖啡馆或小馆子，约45分钟
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">14:00</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">火车</div>
+          <div class="tl-main">Scarborough → Bempton <span class="transport t-train">🚂 Northern</span></div>
+          <div class="tl-sub">约35分钟</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">14:31</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-label">抵达</div>
+          <div class="tl-main">Bempton Station <span class="transport t-walk">🚶 25–30 min</span></div>
+          <div class="tl-sub">沿 Cliff Lane 步行约1.2英里至 RSPB 游客中心</div>
+          <div class="tl-callout callout-sea">
+            <div class="callout-pill">🐦 RSPB Bempton Cliffs · 约4小时</div>
+            海雀、鲣鸟、三趾鸥 · 5月观鸟旺季 · 入场£8/人 · 凭火车票享£3优惠 · 开放至17:00
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">18:09</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">返程</div>
+          <div class="tl-main">Bempton → York <span class="transport t-train">🚂 Northern</span></div>
+          <div class="tl-sub">经 Bridlington 换乘，约1小时30分钟</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">19:44</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">抵达 · 住宿</div>
+          <div class="tl-main">York ✓ 已预订（£150/2人）</div>
+          <div class="tl-callout callout-sea">
+            <div class="callout-pill">🍽 晚餐 · York</div>
+            约克市中心晚餐，Shambles 附近
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════ DAY 3 ══════════ -->
+  <section class="day-section day-3">
+    <div class="day-header">
+      <div class="day-num">3</div>
+      <div class="day-header-text">
+        <div class="day-date">Monday 4 May 2026 · Bank Holiday</div>
+        <div class="day-title">York → Keighley → Haworth → Leeds → Windsor</div>
+      </div>
+    </div>
+
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-time">上午</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-label">自由活动</div>
+          <div class="tl-main">York 上午漫步</div>
+          <div class="tl-sub">Shambles · York Minster · Ghost Merchants 区域</div>
+          <div class="tl-callout callout-moor">
+            <div class="callout-pill">可选：荒原徒步</div>
+            如想游览 Top Withens，需早出发（8:00前）。第一天坐 NYMR 时可决定。
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">最晚13:30</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">抵达</div>
+          <div class="tl-main">Keighley Station</div>
+          <div class="tl-sub">从约克出发，经利兹换乘，约1小时</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">13:45</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">勃朗特巴士</div>
+          <div class="tl-main">Keighley Bus Station Stand K <span class="transport t-bus">🚌 B2</span></div>
+          <div class="tl-sub">步行5–10分钟从火车站到公交站 · 沿 Bradford Road 过铁路桥右转 Cavendish Street</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">14:02</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">抵达</div>
+          <div class="tl-main">Haworth Primary School Stop <span class="transport t-walk">🚶 3 min</span></div>
+          <div class="tl-sub">步行3分钟沿 Church Street 至博物馆</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">14:00–16:00</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">勃朗特故居</div>
+          <div class="tl-main">Brontë Parsonage Museum ✓ 已预订</div>
+          <div class="tl-callout callout-bronte">
+            <div class="callout-pill">📖 勃朗特故居博物馆 · 约2小时</div>
+            艾米莉写作《呼啸山庄》之地 · £13/人（凭B2车票享£3优惠，即£10）<br>
+            圣迈克尔教堂——艾米莉长眠于此 · Haworth 石板路高街
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">16:24</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">返程</div>
+          <div class="tl-main">Haworth Primary School <span class="transport t-bus">🚌 B2</span></div>
+          <div class="tl-sub">B2 路公交返回 Keighley</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">16:45</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-label">抵达</div>
+          <div class="tl-main">Keighley Bus Station</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">17:01</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">火车</div>
+          <div class="tl-main">Keighley → Leeds <span class="transport t-train">🚂 Northern</span></div>
+          <div class="tl-sub">约30分钟</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">17:31</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">抵达</div>
+          <div class="tl-main">Leeds Station</div>
+          <div class="tl-callout callout-bronte">
+            <div class="callout-pill">🍽 晚餐 · Leeds</div>
+            时间充裕→ Bundobust / Fazenda / Issho · 时间紧→ Jollibee（站内）<br>
+            19:10 前需回到站台
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">19:10</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">返程</div>
+          <div class="tl-main">Leeds → London King's Cross <span class="transport t-train">🚂 LNER</span></div>
+          <div class="tl-sub">约2小时15分钟 · Railcard 享折扣</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">~21:25</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-label">换乘</div>
+          <div class="tl-main">London King's Cross → Windsor <span class="transport t-train">🚂 GWR</span></div>
+          <div class="tl-sub">经 Slough → Windsor & Eton Central，约50分钟</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-time">~23:00</div>
+        <div class="tl-dot filled"></div>
+        <div class="tl-content">
+          <div class="tl-label">🏠 抵家</div>
+          <div class="tl-main">Windsor ✓</div>
+          <div class="tl-sub">23:59前到达 · 旅程完美结束</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════ NOTES ══════════ -->
+  <div class="section-ornament">— 注意事项 &amp; 预订清单 —</div>
+
+  <div class="notes-panel">
+    <h3>待办 / To-Do</h3>
+    <ul class="notes-list">
+      <li>NYMR 蒸汽火车票：到皮克林站窗口购买（凭840路券8折）</li>
+      <li>Brontë Parsonage Museum：bronte.org.uk 预订限时票（£13，凭车票£10）</li>
+      <li>LNER 提前购票：Windsor→Malton（5/2）· Leeds→London（5/4），用Railcard</li>
+      <li>Bempton Cliffs 入场：rspb.org.uk，£8/人（凭票£5）</li>
+      <li>840路银行假期时刻表：transdevbus.co.uk 确认5/2班次</li>
+      <li>Malton出租车备选：提前预约以防Uber不可用</li>
+      <li>X93 周日时刻表：arrivabus.co.uk 确认5/3班次</li>
+      <li>Ghost Merchants（周日）：11:00开门，提前排队</li>
+    </ul>
+  </div>
+
+</div>
+
+<div class="footer">
+  Windsor · York · Whitby · Bempton · Haworth · Leeds · Windsor<br>
+  2026年5月2日—4日 &nbsp;·&nbsp; 三天银行假期 &nbsp;·&nbsp; 全程乘火车
+</div>
+
+</body>
+</html>
