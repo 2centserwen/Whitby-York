@@ -345,7 +345,7 @@ td.mono{font-family:var(--mono);font-size:12px;}
 
 <script>
 // ══ CONFIG — fill these in ═════════════════════════════════════════
-const SUPABASE_URL    = 'https://ttdynmsrkabukswmhuyh.supabase.co';  
+const SUPABASE_URL    = 'https://ttdynmsrkabukswmhuyh.supabase.co';    
 const SUPABASE_KEY    = 'sb_publishable_pYSNnLZ4qYMrQ1l6rfXxPg_wW8538-w';  
 const MASTER_PASSWORD = 'split2026';               // change this!
 
@@ -791,19 +791,24 @@ async function submitExpense() {
   const evenSh  = +(totalSettle / inclCnt).toFixed(2);
   const isEven  = formState.included.every((_,i) => !formState.included[i] || Math.abs(shares[i]-evenSh)<0.02);
 
-  const entry = { id: editIdx !== null ? expenses[editIdx].id : null, desc, cat, date, ccy, rate, paid, totalSettle, shares, isEven, included:[...formState.included], skip };
+  const entry = { id: editIdx !== null ? editIdx : null, desc, cat, date, ccy, rate, paid, totalSettle, shares, isEven, included:[...formState.included], skip };
   try {
     await upsertExpense(entry);
-    if (editIdx !== null) { expenses[editIdx] = entry; toast('Updated!'); }
-    else { expenses.push(entry); toast('Added!'); }
+    if (editIdx !== null) {
+      const i = expenses.findIndex(e => e.id === editIdx);
+      if (i >= 0) expenses[i] = entry;
+      toast('Updated!');
+    } else {
+      expenses.push(entry);
+      toast('Added!');
+    }
     sortExpenses(); resetForm(); renderAll();
   } catch(e) { toast('Save error: '+e.message); setSyncStatus('err'); }
 }
 
-function editExpense(idx) {
-  const t = trip(); if (!t) return;
-  const e = t.expenses[idx];
-  editIdx = idx;
+function editExpense(id) {
+  const e = expenses.find(x => x.id === id); if (!e) return;
+  editIdx = id;  // store id not index
   document.getElementById('fDesc').value  = e.desc;
   document.getElementById('fCat').value   = e.cat || 'Other';
   document.getElementById('fDate').value  = e.date;
@@ -814,11 +819,9 @@ function editExpense(idx) {
   formState.included  = [...e.included];
   formState.overrides = e.shares.map((s,i) => e.included[i] && !e.isEven ? s : null);
   rebuildPaidGrid();
-  // set currency
   const sel = document.getElementById('fCcySelect');
   if (sel) sel.value = e.ccy;
   rebuildShareGrid();
-  // fill paid
   e.paid.forEach((p,i) => { const el=document.getElementById(`fPaid${i}`); if(el) el.value=p.orig||''; });
   updateHints(); recalcShareGrid();
   document.getElementById('formCard').scrollIntoView({behavior:'smooth',block:'start'});
@@ -831,7 +834,7 @@ async function deleteExpense(idx) {
   try {
     await sb(`expenses?id=eq.${e.id}`, 'DELETE');
     expenses.splice(idx,1);
-    if (editIdx===idx) resetForm();
+    if (editIdx === e.id) resetForm();
     renderAll(); toast('Deleted');
   } catch(err) { toast('Delete error: '+err.message); setSyncStatus('err'); }
 }
@@ -855,7 +858,7 @@ function renderTableBody() {
   }
   const sc = settleCcy();
   tbody.innerHTML = expenses.map((e, idx) => {
-    const editing = editIdx === idx;
+    const editing = editIdx === e.id;
     const pc = e.paid.map((p,pi) => {
       if (!p.orig) return `<td class="c-paid mono" style="color:var(--border)">—</td>`;
       const hint = e.ccy !== sc.code ? `<br><span style="font-size:9px;color:var(--muted)">${e.ccy} ${p.orig.toFixed(2)}</span>` : '';
@@ -875,7 +878,7 @@ function renderTableBody() {
       <td class="c-paid"><span class="ccy-badge" style="background:${ccyColor[e.ccy]||'#78716C'}20;color:${ccyColor[e.ccy]||'#78716C'}">${e.ccy}</span></td>
       ${pc}${shc}
       <td><div style="display:flex;gap:3px">
-        <button class="icon-btn" onclick="editExpense(${idx})">✏️</button>
+        <button class="icon-btn" onclick="editExpense('${e.id}')">✏️</button>
         <button class="icon-btn del" onclick="deleteExpense(${idx})">✕</button>
       </div></td>
     </tr>`;
