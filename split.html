@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trip Split</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#111010; --paper:#F5F2EC; --card:#FFFFFF; --border:#E5DFD5;
+  --muted:#9A9188; --accent:#2A5C45; --accent-light:#E8F5EE;
+  --warn:#C4410C; --warn-light:#FEF0E7;
+  --mono:'JetBrains Mono',monospace; --sans:'Instrument Sans',sans-serif; --serif:'Instrument Serif',serif;
+  --r:12px; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 20px rgba(0,0,0,.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height:100vh;}
+
+/* ── AUTH SCREEN ── */
+#authScreen{position:fixed;inset:0;background:var(--ink);display:flex;align-items:center;justify-content:center;z-index:1000;flex-direction:column;gap:24px;}
+#authScreen h1{font-family:var(--serif);font-size:2.5rem;color:#fff;letter-spacing:-1px;}
+#authScreen p{color:rgba(255,255,255,.45);font-size:13px;text-align:center;max-width:260px;line-height:1.6;}
+.auth-input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#fff;font-family:var(--mono);font-size:18px;letter-spacing:.2em;padding:14px 20px;width:260px;outline:none;text-align:center;transition:border-color .15s;}
+.auth-input:focus{border-color:rgba(255,255,255,.4);}
+.auth-btn{background:#fff;color:var(--ink);border:none;border-radius:10px;padding:13px 32px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;width:260px;transition:opacity .15s;}
+.auth-btn:hover{opacity:.85;}
+.auth-error{color:#F87171;font-size:12px;font-family:var(--mono);}
+#authScreen.hidden{display:none;}
+
+/* ── APP SHELL ── */
+#app{display:none;}
+#app.visible{display:block;}
+
+/* ── HEADER ── */
+.hdr{background:var(--ink);padding:0 28px;display:flex;align-items:center;gap:0;height:56px;}
+.hdr-logo{font-family:var(--serif);font-size:1.3rem;color:#fff;margin-right:24px;white-space:nowrap;font-style:italic;}
+.hdr-logo span{color:#86EFAC;}
+
+/* Trip selector */
+.trip-selector{display:flex;align-items:center;gap:8px;flex:1;}
+.trip-select{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;font-family:var(--sans);font-size:13px;padding:5px 10px;outline:none;cursor:pointer;max-width:180px;}
+.trip-select option{background:var(--ink);}
+.hdr-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:7px;color:rgba(255,255,255,.8);font-family:var(--sans);font-size:12px;font-weight:500;padding:5px 11px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.hdr-btn:hover{background:rgba(255,255,255,.18);color:#fff;}
+.hdr-btn.danger{border-color:rgba(239,68,68,.3);color:rgba(239,68,68,.7);}
+.hdr-btn.danger:hover{background:rgba(239,68,68,.15);color:#F87171;}
+
+/* ── TABS ── */
+.tabs{background:var(--ink);border-bottom:1px solid rgba(255,255,255,.08);padding:0 28px;display:flex;gap:0;}
+.tab{color:rgba(255,255,255,.4);padding:10px 16px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.04em;text-transform:uppercase;}
+.tab:hover{color:rgba(255,255,255,.7);}
+.tab.active{color:#86EFAC;border-bottom-color:#86EFAC;}
+
+/* ── MAIN ── */
+.main{padding:24px 28px;max-width:1400px;}
+
+/* ── CARDS ── */
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);padding:20px;margin-bottom:20px;}
+.card-title{font-family:var(--serif);font-size:1rem;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.card-title::before{content:'';display:inline-block;width:3px;height:16px;background:var(--accent);border-radius:2px;margin-right:6px;}
+
+/* ── SETTINGS ROW (people + currencies) ── */
+.settings-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+@media(max-width:700px){.settings-row{grid-template-columns:1fr;}}
+
+.chips-wrap{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.person-chip{display:flex;align-items:center;gap:6px;padding:5px 10px 5px 8px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);}
+.person-chip .pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.chip-name-input{border:none;outline:none;background:transparent;font-family:var(--sans);font-size:13px;font-weight:500;width:64px;}
+.chip-rm{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;padding:0;line-height:1;transition:color .15s;}
+.chip-rm:hover{color:var(--warn);}
+.add-chip-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:1.5px dashed var(--border);background:transparent;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:var(--sans);}
+.add-chip-btn:hover{border-color:var(--ink);color:var(--ink);}
+
+/* Currency chips */
+.ccy-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);font-family:var(--mono);font-size:12px;}
+.ccy-chip input[type=text]{border:none;outline:none;background:transparent;font-family:var(--mono);font-size:12px;width:40px;text-transform:uppercase;}
+.ccy-chip input[type=number]{border:none;outline:none;background:transparent;font-family:var(--mono);font-size:12px;width:52px;}
+.ccy-chip .settle-star{font-size:14px;cursor:pointer;opacity:.3;transition:opacity .15s;}
+.ccy-chip .settle-star.active{opacity:1;}
+.ccy-chip.is-settle{border-color:#F59E0B;background:#FFFBEB;}
+
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:2fr 1fr 90px;gap:10px;margin-bottom:12px;}
+@media(max-width:800px){.form-grid{grid-template-columns:1fr 1fr;}}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);}
+.field input,.field select{padding:8px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;color:var(--ink);background:var(--card);outline:none;transition:border-color .15s;font-family:var(--sans);}
+.field input:focus,.field select:focus{border-color:var(--ink);}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:700px){.two-col{grid-template-columns:1fr;}}
+.sub{background:var(--paper);border-radius:10px;padding:12px 14px;}
+.sub-label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin-bottom:10px;display:flex;align-items:center;gap:5px;}
+
+.paid-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.paid-row:last-child{margin-bottom:0;}
+.paid-name{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;min-width:72px;}
+.paid-row input{font-family:var(--mono);font-size:13px;padding:6px 9px;border:1.5px solid var(--border);border-radius:8px;flex:1;outline:none;background:var(--card);transition:border-color .15s;}
+.paid-row input:focus{border-color:#3B82F6;}
+.paid-hint{font-family:var(--mono);font-size:10px;color:var(--muted);min-width:60px;}
+
+.share-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.share-row:last-child{margin-bottom:0;}
+.chip-toggle input{display:none;}
+.chip-face{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:16px;border:1.5px solid var(--border);background:var(--card);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;min-width:68px;}
+.share-amt-wrap{flex:1;position:relative;}
+.share-sym{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:11px;color:var(--muted);pointer-events:none;}
+.share-amt-wrap input{font-family:var(--mono);font-size:13px;padding:6px 9px 6px 18px;border:1.5px solid var(--border);border-radius:8px;width:100%;outline:none;background:var(--card);transition:border-color .15s,opacity .15s;}
+.share-amt-wrap input:focus{border-color:#10B981;}
+.share-amt-wrap input:disabled{opacity:.28;background:var(--paper);cursor:not-allowed;}
+.share-status{font-family:var(--mono);font-size:10px;padding:5px 9px;border-radius:6px;margin-top:8px;min-height:26px;}
+.ss-ok{background:#D1FAE5;color:#065F46;}
+.ss-over{background:#FEE2E2;color:#991B1B;}
+.ss-auto{background:#FEF3C7;color:#92400E;}
+
+.form-actions{display:flex;gap:9px;align-items:center;}
+.btn{background:var(--ink);color:#fff;border:none;border-radius:9px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);}
+.btn:hover{opacity:.85;}
+.btn:active{transform:scale(.98);}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);border-radius:9px;padding:8px 16px;font-size:13px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:var(--sans);}
+.btn-ghost:hover{border-color:var(--ink);color:var(--ink);}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:7px;}
+
+/* ── TABLE ── */
+.tbl-wrap{background:var(--card);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px;}
+.tbl-head{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.tbl-head h3{font-family:var(--serif);font-size:.95rem;}
+.pill{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--paper);padding:2px 9px;border-radius:10px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;padding:8px 12px;font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--paper);border-bottom:1px solid var(--border);font-family:var(--mono);white-space:nowrap;}
+thead th.h-paid{color:#1D4ED8;background:#EFF6FF;border-bottom:2px solid #BFDBFE;}
+thead th.h-share{color:#065F46;background:#F0FDF4;border-bottom:2px solid #6EE7B7;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+tbody tr:hover td{background:#FAFAF8;}
+tbody tr.is-editing td{background:#FFFBEB!important;}
+tbody tr:last-child td{border-bottom:none;}
+td{padding:8px 12px;vertical-align:middle;}
+td.c-paid{background:#F8FBFF;}
+td.c-share{background:#F6FEF9;}
+td.mono{font-family:var(--mono);font-size:12px;}
+.ccy-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:1px 5px;border-radius:4px;font-weight:600;margin-left:3px;vertical-align:middle;}
+.skip-badge{font-size:9px;padding:1px 5px;border-radius:4px;background:var(--paper);color:var(--muted);font-family:var(--mono);margin-left:3px;vertical-align:middle;}
+.custom-badge{font-size:9px;padding:1px 5px;border-radius:4px;background:#FEF3C7;color:#92400E;font-family:var(--mono);margin-left:3px;vertical-align:middle;}
+.icon-btn{background:none;border:1px solid transparent;border-radius:6px;padding:3px 6px;cursor:pointer;font-size:13px;color:var(--muted);transition:all .15s;}
+.icon-btn:hover{border-color:var(--border);color:var(--ink);}
+.icon-btn.del:hover{background:#FEE2E2;color:#B91C1C;border-color:#FECACA;}
+.empty-state{text-align:center;padding:36px;color:var(--muted);font-size:13px;}
+
+/* ── CCY TOTALS ── */
+.ccy-totals{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.ccy-card{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:10px 16px;flex:1;min-width:100px;}
+.ccy-card-label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;}
+.ccy-card-total{font-family:var(--mono);font-size:1.1rem;font-weight:500;}
+.ccy-card-sub{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:1px;}
+
+/* ── SETTLEMENT ── */
+.settle-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px;}
+.person-card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:16px;position:relative;overflow:hidden;}
+.person-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.pc-name{font-family:var(--serif);font-size:1rem;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.pc-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px dashed var(--border);}
+.pc-row:last-of-type{border-bottom:none;}
+.pc-label{color:var(--muted);}
+.pc-val{font-family:var(--mono);font-size:12px;}
+.bal-pill{margin-top:10px;padding:7px 11px;border-radius:7px;font-family:var(--mono);font-size:12px;font-weight:500;text-align:center;}
+.bal-pos{background:#D1FAE5;color:#065F46;}
+.bal-neg{background:#FEE2E2;color:#991B1B;}
+.bal-zero{background:var(--paper);color:var(--muted);}
+.expand-btn{font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;margin-top:8px;padding:0;display:flex;align-items:center;gap:4px;font-family:var(--sans);}
+.expand-btn:hover{color:var(--ink);}
+.detail-panel{font-size:11px;margin-top:8px;display:none;}
+.detail-panel.open{display:block;}
+.detail-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dashed var(--border);}
+.detail-row:last-child{border-bottom:none;}
+
+.transfers-box{background:var(--ink);border-radius:var(--r);padding:20px;margin-bottom:20px;}
+.transfers-box h3{font-family:var(--serif);font-size:1rem;color:#86EFAC;margin-bottom:12px;font-style:italic;}
+.transfer-line{display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.06);border-radius:7px;margin-bottom:7px;font-size:13px;color:#fff;}
+.t-arrow{color:#86EFAC;}
+.t-amt{font-family:var(--mono);font-weight:500;color:#FDE68A;margin-left:auto;}
+.no-transfer{color:#86EFAC;font-size:13px;}
+
+/* ── ANALYSIS ── */
+.analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+@media(max-width:800px){.analysis-grid{grid-template-columns:1fr;}}
+.a-card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:18px;}
+.a-card h3{font-family:var(--serif);font-size:.95rem;margin-bottom:14px;font-style:italic;}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.bar-label{font-size:12px;color:var(--muted);width:100px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar-track{flex:1;background:var(--paper);border-radius:3px;height:7px;}
+.bar-fill{height:7px;border-radius:3px;transition:width .4s;}
+.bar-val{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:56px;text-align:right;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.stat-item{background:var(--paper);border-radius:8px;padding:10px 12px;}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin-bottom:3px;}
+.stat-val{font-family:var(--mono);font-size:1rem;font-weight:500;}
+
+/* ── TRIP MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.hidden{display:none;}
+.modal{background:var(--card);border-radius:var(--r);padding:24px;width:380px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.modal h2{font-family:var(--serif);font-size:1.2rem;margin-bottom:16px;}
+.modal-field{margin-bottom:12px;}
+.modal-field label{display:block;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin-bottom:4px;}
+.modal-field input{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;outline:none;font-family:var(--sans);}
+.modal-field input:focus{border-color:var(--ink);}
+.modal-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:#fff;padding:9px 16px;border-radius:9px;font-size:13px;transform:translateY(50px);opacity:0;transition:all .25s;pointer-events:none;z-index:999;font-family:var(--sans);}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ── SAVE INDICATOR ── */
+
+</style>
+</head>
+<body>
+
+<!-- ── AUTH ── -->
+<div id="authScreen">
+  <h1>Trip <span style="font-style:italic;color:#86EFAC">Split</span></h1>
+  <p id="authMsg">Enter your password to continue</p>
+  <input class="auth-input" type="password" id="authInput" placeholder="••••••" onkeydown="if(event.key==='Enter')tryAuth()">
+  <button class="auth-btn" onclick="tryAuth()">Continue →</button>
+  <div class="auth-error" id="authError"></div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+  <header class="hdr">
+    <div class="hdr-logo">Trip <span>Split</span></div>
+    <div class="trip-selector">
+      <select class="trip-select" id="tripSelect" onchange="switchTrip(this.value)"></select>
+      <button class="hdr-btn" onclick="showNewTripModal()">+ New trip</button>
+      <div id="saveDot" style="width:7px;height:7px;border-radius:50%;background:#86EFAC;opacity:0;transition:all .3s;margin-left:8px;flex-shrink:0"></div>
+    </div>
+    <div style="display:flex;gap:6px;margin-left:auto;">
+      <button class="hdr-btn" onclick="exportData()">⬇ Export</button>
+      <label class="hdr-btn" style="cursor:pointer">⬆ Import<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
+      <button class="hdr-btn danger" onclick="deleteCurrentTrip()">Delete trip</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <div class="tab active" onclick="switchTab('expenses')">Expenses</div>
+    <div class="tab" onclick="switchTab('settlement')">Settlement</div>
+    <div class="tab" onclick="switchTab('analysis')">Analysis</div>
+  </nav>
+
+  <!-- ══ EXPENSES ══ -->
+  <div class="main" id="tab-expenses">
+
+    <!-- Settings row -->
+    <div class="settings-row">
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title">People <span style="font-family:var(--mono);font-size:10px;color:var(--muted);font-weight:400">(max 4)</span></div>
+        <div class="chips-wrap" id="peopleChips"></div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title">Currencies <span style="font-family:var(--mono);font-size:10px;color:var(--muted);font-weight:400">⭐ = settle in</span></div>
+        <div class="chips-wrap" id="ccyChips"></div>
+      </div>
+    </div>
+
+    <!-- Add/Edit form -->
+    <div class="card" id="formCard" style="margin-top:16px">
+      <div class="card-title">
+        <span id="formTitle">Add Expense</span>
+        <button class="btn-ghost btn-sm" id="cancelEditBtn" style="display:none" onclick="cancelEdit()">Cancel</button>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Description</label><input id="fDesc" type="text" placeholder="e.g. Dinner"></div>
+        <div class="field"><label>Date</label><input id="fDate" type="date"></div>
+        <div class="field"><label>Skip?</label>
+          <select id="fSkip"><option value="">Count it</option><option value="skip">Skip</option></select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="sub">
+          <div class="sub-label"><span style="width:6px;height:6px;border-radius:50%;background:#3B82F6;display:inline-block"></span>Who paid & how much?</div>
+          <div id="paidGrid"></div>
+        </div>
+        <div class="sub">
+          <div class="sub-label"><span style="width:6px;height:6px;border-radius:50%;background:#10B981;display:inline-block"></span>Split among whom? <span style="font-weight:400;font-size:9px;margin-left:4px;color:var(--muted)">(even by default)</span></div>
+          <div id="shareGrid"></div>
+          <div id="shareStatus" class="share-status"></div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn" onclick="submitExpense()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span id="submitLabel">Add Expense</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- CCY totals -->
+    <div class="ccy-totals" id="ccyTotals"></div>
+
+    <!-- Table -->
+    <div class="tbl-wrap">
+      <div class="tbl-head">
+        <h3>All Expenses</h3>
+        <span class="pill" id="expCount">0 entries</span>
+      </div>
+      <div style="overflow-x:auto"><table><thead><tr id="tableHead"></tr></thead><tbody id="tableBody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ══ SETTLEMENT ══ -->
+  <div class="main" id="tab-settlement" style="display:none">
+    <div class="transfers-box" id="transfersBox"></div>
+    <div class="settle-grid" id="settleGrid"></div>
+  </div>
+
+  <!-- ══ ANALYSIS ══ -->
+  <div class="main" id="tab-analysis" style="display:none">
+    <div class="analysis-grid" id="analysisGrid"></div>
+  </div>
+</div>
+
+<!-- ── NEW TRIP MODAL ── -->
+<div class="modal-overlay hidden" id="tripModal">
+  <div class="modal">
+    <h2>New Trip</h2>
+    <div class="modal-field"><label>Trip Name</label><input id="mTripName" placeholder="e.g. Skye May 2026"></div>
+    <div class="modal-field"><label>Password (optional — leave blank for open access)</label><input id="mPassword" type="password" placeholder="leave blank = no password"></div>
+    <div class="modal-field"><label>Open (no password) from</label><input id="mOpenFrom" type="date"></div>
+    <div class="modal-field"><label>Open (no password) until</label><input id="mOpenUntil" type="date"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="hideTripModal()">Cancel</button>
+      <button class="btn" onclick="createTrip()">Create Trip</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ CONFIG — fill these in ═════════════════════════════════════════
+const SUPABASE_URL    = 'https://ttdynmsrkabukswmhuyh.supabase.co/rest/v1/';       // https://xxxx.supabase.co
+const SUPABASE_KEY    = 'sb_publishable_pYSNnLZ4qYMrQ1l6rfXxPg_wW8538-w';  
+const MASTER_PASSWORD = 'split2026';               // change this!
+
+// ══ CONSTANTS ══════════════════════════════════════════════════════
+const PERSON_COLORS = ['#E8547A','#3B82F6','#10B981','#F59E0B'];
+
+// ══ SUPABASE FETCH HELPER ══════════════════════════════════════════
+async function sb(path, method='GET', body=null) {
+  setSyncStatus('saving');
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method==='POST' ? 'return=representation' : 'return=minimal',
+    },
+    body: body ? JSON.stringify(body) : null,
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const text = await res.text();
+  setSyncStatus('ok');
+  return text ? JSON.parse(text) : null;
+}
+
+function setSyncStatus(s) {
+  const dot = document.getElementById('saveDot');
+  if (!dot) return;
+  dot.style.background = s==='saving' ? '#F59E0B' : s==='err' ? '#F87171' : '#86EFAC';
+  dot.style.opacity = '1';
+  if (s !== 'saving') setTimeout(() => { dot.style.opacity = '0'; }, 1500);
+}
+
+// ══ STATE ══════════════════════════════════════════════════════════
+let trips        = [];  // loaded from Supabase
+let expenses     = [];  // flat list for current trip
+let currentTripId = null;
+let editIdx      = null;  // index into expenses[]
+let formState    = { included:[], overrides:[] };
+
+function trip()   { return trips.find(t => t.id === currentTripId) || null; }
+function people() { return trip()?.people || []; }
+function ccys()   { return trip()?.currencies || []; }
+function settleCcy() { return ccys().find(c => c.settle) || ccys()[0] || {code:'EUR',rate:1,settle:true}; }
+function settleRate(ccy) {
+  // Convert from any currency to settle currency
+  const sc = settleCcy();
+  if (ccy === sc.code) return 1;
+  // Convert via EUR as base: amount_in_ccy * rate_to_eur / settle_rate_to_eur
+  const fromRate = ccys().find(c => c.code === ccy)?.rate || 1;
+  const toRate   = sc.rate || 1;
+  return fromRate / toRate;
+}
+function toSettle(amount, ccy) {
+  if (ccy === settleCcy().code) return amount;
+  return amount * settleRate(ccy);
+}
+
+// ══ AUTH ══════════════════════════════════════════════════════════
+function tryAuth() {
+  const val = document.getElementById('authInput').value;
+  if (!val) { showAuthError('Enter a password'); return; }
+
+  // Check master password
+  if (val === MASTER_PASSWORD) { enterApp(); return; }
+
+  // Check if any trip is currently in its open window with matching password
+  const now = new Date(); now.setHours(0,0,0,0);
+  for (const t of trips) {
+    const from  = t.openFrom  ? new Date(t.openFrom)  : null;
+    const until = t.openUntil ? new Date(t.openUntil) : null;
+    const inWindow = (!from || now >= from) && (!until || now <= until);
+    if (inWindow && !t.password) { enterApp(); return; }
+    if (t.password && val === t.password) { enterApp(); return; }
+  }
+
+  showAuthError('Wrong password');
+}
+
+function checkAuth() {
+  // If any trip is in open window with no password, skip auth entirely
+  const now = new Date(); now.setHours(0,0,0,0);
+  for (const t of trips) {
+    const from  = t.openFrom  ? new Date(t.openFrom)  : null;
+    const until = t.openUntil ? new Date(t.openUntil) : null;
+    const inWindow = (!from || now >= from) && (!until || now <= until);
+    if (inWindow && !t.password) { enterApp(); return; }
+  }
+  // Show auth screen
+  document.getElementById('authScreen').classList.remove('hidden');
+}
+
+function showAuthError(msg) {
+  document.getElementById('authError').textContent = msg;
+  document.getElementById('authInput').value = '';
+}
+
+function enterApp() {
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+}
+
+// ══ SUPABASE STORAGE ══════════════════════════════════════════════
+async function loadTrips() {
+  const rows = await sb('trips?select=*&order=created_at.asc');
+  trips = rows.map(r => ({
+    id: r.id, name: r.name,
+    password: r.password || '',
+    openFrom: r.open_from || '', openUntil: r.open_until || '',
+    people: r.people, currencies: r.currencies,
+  }));
+}
+
+async function loadExpenses(tripId) {
+  const rows = await sb(`expenses?trip_id=eq.${tripId}&select=*&order=created_at.asc`);
+  expenses = rows.map(r => ({
+    id: r.id, desc: r.description, date: r.date || '',
+    ccy: r.ccy, rate: r.rate, paid: r.paid,
+    totalSettle: r.total_settle, shares: r.shares,
+    isEven: r.is_even, included: r.included, skip: r.skip,
+  }));
+}
+
+async function saveTripMeta(t) {
+  await sb(`trips?id=eq.${t.id}`, 'PATCH', {
+    name: t.name, password: t.password || null,
+    open_from: t.openFrom || null, open_until: t.openUntil || null,
+    people: t.people, currencies: t.currencies,
+  });
+}
+
+async function upsertExpense(e) {
+  const row = {
+    trip_id: currentTripId, description: e.desc,
+    date: e.date || null, ccy: e.ccy, rate: e.rate,
+    paid: e.paid, total_settle: e.totalSettle,
+    shares: e.shares, is_even: e.isEven,
+    included: e.included, skip: e.skip,
+  };
+  if (e.id) {
+    await sb(`expenses?id=eq.${e.id}`, 'PATCH', row);
+  } else {
+    row.id = 'e_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    const res = await sb('expenses', 'POST', [row]);
+    e.id = res?.[0]?.id || row.id;
+  }
+}
+
+// ══ TRIP MANAGEMENT ═══════════════════════════════════════════════
+function showNewTripModal() { document.getElementById('tripModal').classList.remove('hidden'); }
+function hideTripModal()    { document.getElementById('tripModal').classList.add('hidden'); }
+
+async function createTrip() {
+  const name = document.getElementById('mTripName').value.trim();
+  if (!name) { toast('Enter a trip name'); return; }
+  const t = {
+    id: 'trip_' + Date.now(), name,
+    password:  document.getElementById('mPassword').value || '',
+    openFrom:  document.getElementById('mOpenFrom').value,
+    openUntil: document.getElementById('mOpenUntil').value,
+    people: [
+      {id:'p0',name:'Person 1',color:PERSON_COLORS[0]},
+      {id:'p1',name:'Person 2',color:PERSON_COLORS[1]},
+    ],
+    currencies: [
+      {code:'GBP',rate:1.15,settle:true},{code:'EUR',rate:1.0,settle:false},
+      {code:'RMB',rate:0.13,settle:false},{code:'JPY',rate:0.0058,settle:false},
+      {code:'NOK',rate:0.087,settle:false},{code:'USD',rate:0.85,settle:false},
+    ],
+  };
+  try {
+    await sb('trips', 'POST', [{
+      id:t.id, name:t.name, password:t.password||null,
+      open_from:t.openFrom||null, open_until:t.openUntil||null,
+      people:t.people, currencies:t.currencies,
+    }]);
+    trips.push(t); expenses = [];
+    hideTripModal(); buildTripSelect(); await switchTrip(t.id);
+    ['mTripName','mPassword','mOpenFrom','mOpenUntil'].forEach(id=>document.getElementById(id).value='');
+    toast('Trip created!');
+  } catch(e) { toast('Error: '+e.message); setSyncStatus('err'); }
+}
+
+async function deleteCurrentTrip() {
+  if (!trip()) return;
+  if (!confirm(`Delete "${trip().name}" and all its expenses?`)) return;
+  try {
+    await sb(`trips?id=eq.${currentTripId}`, 'DELETE');
+    trips = trips.filter(t=>t.id!==currentTripId);
+    expenses = []; currentTripId = trips[0]?.id||null;
+    buildTripSelect();
+    if (currentTripId) await switchTrip(currentTripId); else renderAll();
+    toast('Trip deleted');
+  } catch(e) { toast('Error: '+e.message); setSyncStatus('err'); }
+}
+
+function buildTripSelect() {
+  const sel = document.getElementById('tripSelect');
+  sel.innerHTML = trips.map(t=>`<option value="${t.id}" ${t.id===currentTripId?'selected':''}>${t.name}</option>`).join('');
+  if (!trips.length) sel.innerHTML = '<option value="">No trips yet</option>';
+}
+
+async function switchTrip(id) {
+  currentTripId = id; editIdx = null;
+  document.getElementById('tripSelect').value = id;
+  try { await loadExpenses(id); } catch(e) { toast('Load error: '+e.message); setSyncStatus('err'); }
+  buildPeopleChips(); buildCcyChips(); resetForm(); renderAll();
+}
+
+// ══ PEOPLE ════════════════════════════════════════════════════════
+function buildPeopleChips() {
+  const wrap = document.getElementById('peopleChips');
+  const t = trip(); if (!t) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = t.people.map((p, i) => `
+    <div class="person-chip" style="border-color:${p.color}30;background:${p.color}0A">
+      <span class="pdot" style="background:${p.color}"></span>
+      <input class="chip-name-input" value="${p.name}" style="color:${p.color}"
+             oninput="renamePerson('${p.id}',this.value)">
+      ${t.people.length > 2 ? `<button class="chip-rm" onclick="removePerson('${p.id}')">×</button>` : ''}
+    </div>`).join('');
+  if (t.people.length < 4) wrap.innerHTML += `<button class="add-chip-btn" onclick="addPerson()">＋ Person</button>`;
+}
+
+function addPerson() {
+  const t = trip(); if (!t || t.people.length >= 4) return;
+  const i = t.people.length;
+  t.people.push({id:'p'+Date.now(), name:`Person ${i+1}`, color:PERSON_COLORS[i % PERSON_COLORS.length]});
+  t.expenses.forEach(e => { e.paid.push({orig:0,eur:0}); e.shares.push(0); e.included.push(false); });
+  saveTripMeta(trip()).catch(e=>{toast('Save error');setSyncStatus('err');}); buildPeopleChips(); rebuildPaidGrid(); rebuildShareGrid(); renderTableHead(); renderTableBody();
+}
+
+function removePerson(id) {
+  const t = trip(); if (!t || t.people.length <= 2) return;
+  const i = t.people.findIndex(p => p.id === id);
+  t.people.splice(i, 1);
+  t.expenses.forEach(e => { e.paid.splice(i,1); e.shares.splice(i,1); e.included.splice(i,1); });
+  saveTripMeta(trip()).catch(e=>{toast('Save error');setSyncStatus('err');}); buildPeopleChips(); rebuildPaidGrid(); rebuildShareGrid(); renderAll();
+}
+
+function renamePerson(id, name) {
+  const p = trip()?.people.find(p => p.id === id);
+  if (p) { p.name = name; saveTripMeta(trip()).catch(()=>setSyncStatus('err')); rebuildPaidGrid(); rebuildShareGrid(); renderTableHead(); }
+}
+
+// ══ CURRENCIES ════════════════════════════════════════════════════
+function buildCcyChips() {
+  const wrap = document.getElementById('ccyChips');
+  const t = trip(); if (!t) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = t.currencies.map((c, i) => `
+    <div class="ccy-chip ${c.settle ? 'is-settle' : ''}">
+      <input type="text" value="${c.code}" maxlength="4" style="width:36px;text-transform:uppercase;font-weight:600"
+             oninput="renameCcy(${i},this.value.toUpperCase())">
+      <span style="color:var(--muted);font-size:11px">=</span>
+      <input type="text" inputmode="decimal" value="${c.rate}" style="width:52px"
+             onchange="setCcyRate(${i},this.value)" onblur="setCcyRate(${i},this.value)">
+      <span style="color:var(--muted);font-size:10px">${t.currencies.find(x=>x.settle)?.code||'?'}</span>
+      <span class="settle-star ${c.settle?'active':''}" title="Set as settlement currency"
+            onclick="setSettle(${i})">⭐</span>
+      ${t.currencies.length > 1 ? `<button class="chip-rm" onclick="removeCcy(${i})">×</button>` : ''}
+    </div>`).join('');
+  wrap.innerHTML += `<button class="add-chip-btn" onclick="addCcy()">＋ Currency</button>`;
+}
+
+function addCcy() {
+  const t = trip(); if (!t) return;
+  t.currencies.push({code:'USD', rate:0.85, settle:false});
+  saveTripMeta(trip()).catch(()=>setSyncStatus('err')); buildCcyChips(); rebuildPaidGrid(); renderCcyTotals();
+}
+function removeCcy(i) {
+  const t = trip(); if (!t || t.currencies.length <= 1) return;
+  if (t.currencies[i].settle && t.currencies.length > 1) t.currencies[i===0?1:0].settle = true;
+  t.currencies.splice(i, 1);
+  saveTripMeta(trip()).catch(()=>setSyncStatus('err')); buildCcyChips(); rebuildPaidGrid(); renderCcyTotals();
+}
+function renameCcy(i, code) { const t=trip(); if(t){t.currencies[i].code=code;saveTripMeta(t).catch(()=>setSyncStatus('err'));buildCcyChips();} }
+function setCcyRate(i, val) { const t=trip(); if(t){t.currencies[i].rate=parseFloat(val)||1;saveTripMeta(t).catch(()=>setSyncStatus('err'));buildCcyChips();renderCcyTotals();renderAll();} }
+function setSettle(i) {
+  const t = trip(); if(!t) return;
+  t.currencies.forEach((c,j) => c.settle = j===i);
+  saveTripMeta(trip()).catch(()=>setSyncStatus('err')); buildCcyChips(); renderCcyTotals(); renderSettlement();
+}
+
+// ══ FORM ══════════════════════════════════════════════════════════
+function getSelectedCcy() {
+  const el = document.getElementById('fCcySelect');
+  return el ? el.value : (ccys()[0]?.code || 'EUR');
+}
+function getSelectedRate() {
+  const ccy = getSelectedCcy();
+  return ccys().find(c => c.code === ccy)?.rate || 1;
+}
+
+function resetForm() {
+  editIdx = null;
+  formState = { included: people().map(() => true), overrides: people().map(() => null) };
+  document.getElementById('fDesc').value = '';
+  document.getElementById('fSkip').value = '';
+  document.getElementById('formTitle').textContent = 'Add Expense';
+  document.getElementById('submitLabel').textContent = 'Add Expense';
+  document.getElementById('cancelEditBtn').style.display = 'none';
+  rebuildPaidGrid();
+  rebuildShareGrid();
+}
+
+function rebuildPaidGrid() {
+  const t = trip(); if (!t) return;
+  const ccy = getSelectedCcy();
+  const sym = ccy;
+  document.getElementById('paidGrid').innerHTML = t.people.map((p, i) => `
+    <div class="paid-row">
+      <span class="paid-name"><span class="pdot" style="background:${p.color};width:7px;height:7px;border-radius:50%;display:inline-block"></span>${p.name}</span>
+      <input type="text" inputmode="decimal" id="fPaid${i}" placeholder="0.00" oninput="onPaidChange()">
+      <span class="paid-hint" id="fHint${i}"></span>
+    </div>`).join('');
+  // Add currency selector inline
+  const ccyOpts = t.currencies.map(c => `<option value="${c.code}" ${c.settle?'selected':''}>${c.code}</option>`).join('');
+  const sel = `<div class="field" style="margin-bottom:12px"><label>Currency</label><select id="fCcySelect" onchange="onCcyChange()">${ccyOpts}</select></div>`;
+  document.getElementById('paidGrid').insertAdjacentHTML('afterbegin', sel);
+}
+
+function onCcyChange() { updateHints(); recalcShareGrid(); }
+function onPaidChange() { formState.overrides = people().map(() => null); updateHints(); recalcShareGrid(); }
+
+function updateHints() {
+  const ccy = getSelectedCcy();
+  const rate = getSelectedRate();
+  const sc = settleCcy();
+  people().forEach((_, i) => {
+    const v = parseFloat(document.getElementById(`fPaid${i}`)?.value) || 0;
+    const el = document.getElementById(`fHint${i}`);
+    if (el) el.textContent = (v && ccy !== sc.code) ? `≈ ${sc.code} ${(v * rate).toFixed(2)}` : '';
+  });
+}
+
+function getEurTotal() {
+  const rate = getSelectedRate();
+  return people().reduce((s, _, i) => s + (parseFloat(document.getElementById(`fPaid${i}`)?.value) || 0) * rate, 0);
+}
+
+function rebuildShareGrid() {
+  const t = trip(); if (!t) return;
+  const sc = settleCcy();
+  document.getElementById('shareGrid').innerHTML = t.people.map((p, i) => {
+    const on = formState.included[i];
+    const ov = formState.overrides[i];
+    return `
+    <div class="share-row">
+      <label class="chip-toggle">
+        <input type="checkbox" id="fIncl${i}" ${on?'checked':''} onchange="onToggle(${i})">
+        <span class="chip-face" style="${on?`background:${p.color};border-color:${p.color};color:#fff`:''}">
+          <span class="pdot" style="background:${on?'rgba(255,255,255,.6)':p.color};width:6px;height:6px;border-radius:50%;display:inline-block"></span>
+          ${p.name}
+        </span>
+      </label>
+      <div class="share-amt-wrap">
+        <span class="share-sym">${sc.code}</span>
+        <input type="text" inputmode="decimal" id="fShare${i}"
+               value="${ov !== null ? ov : ''}" placeholder="auto"
+               ${!on ? 'disabled' : ''}
+               oninput="onShareInput(${i})">
+      </div>
+    </div>`;
+  }).join('');
+  recalcShareGrid();
+}
+
+function onToggle(i) { formState.included[i] = document.getElementById(`fIncl${i}`).checked; formState.overrides[i]=null; rebuildShareGrid(); }
+function onShareInput(i) { const v=document.getElementById(`fShare${i}`).value; formState.overrides[i]=v===''?null:parseFloat(v); recalcShareGrid(); }
+
+function recalcShareGrid() {
+  const total = getEurTotal(); // in settle currency via rate
+  const incl = people().map((_,i) => i).filter(i => formState.included[i]);
+  if (!incl.length) { setShareStatus('',''); return; }
+  let mSum=0, mCnt=0;
+  incl.forEach(i => { if (formState.overrides[i]!==null) { mSum+=formState.overrides[i]; mCnt++; } });
+  const autoCnt = incl.length - mCnt;
+  const autoSh  = autoCnt > 0 ? Math.max(0, (total - mSum) / autoCnt) : 0;
+  incl.forEach(i => {
+    const el = document.getElementById(`fShare${i}`);
+    if (el && formState.overrides[i]===null) el.placeholder = total>0 ? autoSh.toFixed(2) : 'auto';
+  });
+  const assigned = mSum + autoSh*autoCnt, diff = total - assigned, abs = Math.abs(diff);
+  const sc = settleCcy().code;
+  if (!total) setShareStatus('','');
+  else if (abs < 0.02) setShareStatus(`✓ ${sc} ${total.toFixed(2)}`,'ss-ok');
+  else if (diff < 0)   setShareStatus(`Over by ${sc} ${abs.toFixed(2)}`,'ss-over');
+  else                 setShareStatus(`${sc} ${diff.toFixed(2)} auto-split`,'ss-auto');
+}
+function setShareStatus(txt, cls) { const el=document.getElementById('shareStatus'); el.textContent=txt; el.className='share-status'+(cls?' '+cls:''); }
+
+function resolveShares(totalSettle) {
+  const incl = people().map((_,i)=>i).filter(i=>formState.included[i]);
+  let mSum=0, mCnt=0;
+  incl.forEach(i => { if(formState.overrides[i]!==null){mSum+=formState.overrides[i];mCnt++;} });
+  const autoCnt = incl.length-mCnt;
+  const autoSh  = autoCnt>0 ? Math.max(0,(totalSettle-mSum)/autoCnt) : 0;
+  return people().map((_,i) => {
+    if (!formState.included[i]) return 0;
+    if (formState.overrides[i]!==null) return +formState.overrides[i].toFixed(2);
+    return +autoSh.toFixed(2);
+  });
+}
+
+// ══ ADD / EDIT / DELETE ════════════════════════════════════════════
+async function submitExpense() {
+  const t = trip(); if (!t) return;
+  const desc = document.getElementById('fDesc').value.trim();
+  const date = document.getElementById('fDate').value;
+  const skip = document.getElementById('fSkip').value === 'skip';
+  const ccy  = getSelectedCcy();
+  const rate = getSelectedRate(); // rate to settle currency
+
+  if (!desc) { toast('Add a description!'); return; }
+
+  const paid = people().map((_, i) => {
+    const v = parseFloat(document.getElementById(`fPaid${i}`)?.value) || 0;
+    return { orig: v, settle: +(v * rate).toFixed(2) };
+  });
+  const totalSettle = +(paid.reduce((s,p) => s+p.settle, 0)).toFixed(2);
+  if (!skip && totalSettle === 0) { toast('Enter at least one amount, or mark as skip'); return; }
+
+  const shares  = resolveShares(totalSettle);
+  const inclCnt = formState.included.filter(Boolean).length || 1;
+  const evenSh  = +(totalSettle / inclCnt).toFixed(2);
+  const isEven  = formState.included.every((_,i) => !formState.included[i] || Math.abs(shares[i]-evenSh)<0.02);
+
+  const entry = { id: editIdx !== null ? expenses[editIdx].id : null, desc, date, ccy, rate, paid, totalSettle, shares, isEven, included:[...formState.included], skip };
+  try {
+    await upsertExpense(entry);
+    if (editIdx !== null) { expenses[editIdx] = entry; toast('Updated!'); }
+    else { expenses.push(entry); toast('Added!'); }
+    resetForm(); renderAll();
+  } catch(e) { toast('Save error: '+e.message); setSyncStatus('err'); }
+}
+
+function editExpense(idx) {
+  const t = trip(); if (!t) return;
+  const e = t.expenses[idx];
+  editIdx = idx;
+  document.getElementById('fDesc').value  = e.desc;
+  document.getElementById('fDate').value  = e.date;
+  document.getElementById('fSkip').value  = e.skip ? 'skip' : '';
+  document.getElementById('formTitle').textContent  = 'Edit Expense';
+  document.getElementById('submitLabel').textContent = 'Save Changes';
+  document.getElementById('cancelEditBtn').style.display = '';
+  formState.included  = [...e.included];
+  formState.overrides = e.shares.map((s,i) => e.included[i] && !e.isEven ? s : null);
+  rebuildPaidGrid();
+  // set currency
+  const sel = document.getElementById('fCcySelect');
+  if (sel) sel.value = e.ccy;
+  rebuildShareGrid();
+  // fill paid
+  e.paid.forEach((p,i) => { const el=document.getElementById(`fPaid${i}`); if(el) el.value=p.orig||''; });
+  updateHints(); recalcShareGrid();
+  document.getElementById('formCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function cancelEdit() { editIdx=null; resetForm(); }
+async function deleteExpense(idx) {
+  const e = expenses[idx]; if(!e) return;
+  if (!confirm('Delete this expense?')) return;
+  try {
+    await sb(`expenses?id=eq.${e.id}`, 'DELETE');
+    expenses.splice(idx,1);
+    if (editIdx===idx) resetForm();
+    renderAll(); toast('Deleted');
+  } catch(err) { toast('Delete error: '+err.message); setSyncStatus('err'); }
+}
+
+// ══ RENDER ════════════════════════════════════════════════════════
+function renderAll() { renderTableHead(); renderTableBody(); renderCcyTotals(); }
+
+function renderTableHead() {
+  const pc = people().map(p=>`<th class="h-paid">${p.name} paid</th>`).join('');
+  const sc = people().map(p=>`<th class="h-share">${p.name} owes</th>`).join('');
+  document.getElementById('tableHead').innerHTML = `
+    <th>Date</th><th>Description</th><th class="h-paid">CCY</th>${pc}${sc}<th></th>`;
+}
+
+function renderTableBody() {
+  document.getElementById('expCount').textContent = `${expenses.length} entries`;
+  const tbody = document.getElementById('tableBody');
+  if (!expenses.length) {
+    tbody.innerHTML = `<tr><td colspan="20"><div class="empty-state">No expenses yet — add one above!</div></td></tr>`;
+    return;
+  }
+  const sc = settleCcy();
+  tbody.innerHTML = expenses.map((e, idx) => {
+    const editing = editIdx === idx;
+    const pc = e.paid.map((p,pi) => {
+      if (!p.orig) return `<td class="c-paid mono" style="color:var(--border)">—</td>`;
+      const hint = e.ccy !== sc.code ? `<br><span style="font-size:9px;color:var(--muted)">${e.ccy} ${p.orig.toFixed(2)}</span>` : '';
+      return `<td class="c-paid mono" style="color:${people()[pi]?.color};font-weight:600">${sc.code} ${p.settle.toFixed(2)}${hint}</td>`;
+    }).join('');
+    const shc = e.shares.map((s,pi) => {
+      if (!e.included[pi]) return `<td class="c-share mono" style="color:var(--border)">—</td>`;
+      return `<td class="c-share mono" style="color:#065F46">${sc.code} ${s.toFixed(2)}</td>`;
+    }).join('');
+    const tags = (e.skip?`<span class="skip-badge">skip</span>`:'') + (!e.isEven&&!e.skip?`<span class="custom-badge">custom</span>`:'');
+    const ccyColor = {EUR:'#065F46',GBP:'#5B21B6',USD:'#1E40AF'};
+    return `<tr class="${editing?'is-editing':''}">
+      <td class="mono" style="color:var(--muted);font-size:11px">${e.date||'—'}</td>
+      <td style="font-weight:500;max-width:180px">${e.desc}${tags}</td>
+      <td class="c-paid"><span class="ccy-badge" style="background:${ccyColor[e.ccy]||'#78716C'}20;color:${ccyColor[e.ccy]||'#78716C'}">${e.ccy}</span></td>
+      ${pc}${shc}
+      <td><div style="display:flex;gap:3px">
+        <button class="icon-btn" onclick="editExpense(${idx})">✏️</button>
+        <button class="icon-btn del" onclick="deleteExpense(${idx})">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCcyTotals() {
+  const sc = settleCcy();
+  const active = expenses.filter(e => !e.skip);
+  const grand  = active.reduce((s,e) => s+e.totalSettle, 0);
+
+  const buckets = {};
+  active.forEach(e => {
+    if (!buckets[e.ccy]) buckets[e.ccy] = { raw:0, settle:0 };
+    buckets[e.ccy].raw    += e.paid.reduce((s,p)=>s+p.orig,0);
+    buckets[e.ccy].settle += e.totalSettle;
+  });
+  const ccyColor = {EUR:'#065F46',GBP:'#5B21B6',USD:'#1E40AF'};
+  document.getElementById('ccyTotals').innerHTML = Object.entries(buckets).map(([ccy,b])=>`
+    <div class="ccy-card">
+      <div class="ccy-card-label" style="color:${ccyColor[ccy]||'#78716C'}">${ccy}</div>
+      <div class="ccy-card-total" style="color:${ccyColor[ccy]||'#78716C'}">${ccy} ${b.raw.toFixed(2)}</div>
+      <div class="ccy-card-sub">→ ${sc.code} ${b.settle.toFixed(2)}</div>
+    </div>`).join('') + `
+    <div class="ccy-card">
+      <div class="ccy-card-label">Total (${sc.code})</div>
+      <div class="ccy-card-total" style="color:var(--accent)">${sc.code} ${grand.toFixed(2)}</div>
+      <div class="ccy-card-sub">${active.length} expenses</div>
+    </div>`;
+}
+
+// ══ SETTLEMENT ════════════════════════════════════════════════════
+function renderSettlement() {
+  const sc = settleCcy();
+  const active = expenses.filter(e => !e.skip);
+
+  const pp = people().map((p, i) => {
+    const paid  = active.reduce((s,e) => s+e.paid[i].settle, 0);
+    const share = active.reduce((s,e) => s+(e.shares[i]||0), 0);
+    return { name:p.name, color:p.color, paid:+paid.toFixed(2), share:+share.toFixed(2), balance:+(paid-share).toFixed(2) };
+  });
+
+  // Minimal transfers
+  const bs = pp.map(p=>({name:p.name, b:p.balance}));
+  const transfers = [];
+  for (let it=0;it<30;it++) {
+    const pay = bs.filter(x=>x.b<-0.01).sort((a,b)=>a.b-b.b);
+    const rec = bs.filter(x=>x.b> 0.01).sort((a,b)=>b.b-a.b);
+    if (!pay.length||!rec.length) break;
+    const amt = Math.min(-pay[0].b, rec[0].b);
+    transfers.push({from:pay[0].name, to:rec[0].name, amt:+amt.toFixed(2)});
+    pay[0].b=+(pay[0].b+amt).toFixed(2); rec[0].b=+(rec[0].b-amt).toFixed(2);
+  }
+
+  const tLines = transfers.length
+    ? transfers.map(t=>`<div class="transfer-line"><span>${t.from}</span><span class="t-arrow">→</span><span>${t.to}</span><span class="t-amt">${sc.code} ${t.amt.toFixed(2)}</span></div>`).join('')
+    : `<div class="no-transfer">✓ All settled</div>`;
+  document.getElementById('transfersBox').innerHTML = `<h3>How to settle up</h3>${tLines}`;
+
+  document.getElementById('settleGrid').innerHTML = pp.map((p,i) => {
+    const bc = p.balance>0.01?'bal-pos':p.balance<-0.01?'bal-neg':'bal-zero';
+    const bt = p.balance>0.01?`Gets back ${sc.code} ${p.balance.toFixed(2)}`
+              :p.balance<-0.01?`Owes ${sc.code} ${Math.abs(p.balance).toFixed(2)}`:'✓ Settled';
+    const items = active.map(e=>{
+      const paid=e.paid[i].settle, share=e.shares[i]||0;
+      if(!paid&&!share) return '';
+      return `<div class="detail-row"><span>${e.desc}</span><span style="font-family:var(--mono);font-size:10px">paid ${e.paid[i].orig>0?e.ccy+' '+e.paid[i].orig.toFixed(2):'—'} / owes ${sc.code} ${share.toFixed(2)}</span></div>`;
+    }).filter(Boolean).join('');
+    return `<div class="person-card" style="border-color:${p.color}30">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${p.color};border-radius:var(--r) var(--r) 0 0"></div>
+      <div class="pc-name"><span style="background:${p.color};width:9px;height:9px;border-radius:50%;display:inline-block"></span>${p.name}</div>
+      <div class="pc-row"><span class="pc-label">Paid out</span><span class="pc-val">${sc.code} ${p.paid.toFixed(2)}</span></div>
+      <div class="pc-row"><span class="pc-label">Fair share</span><span class="pc-val">${sc.code} ${p.share.toFixed(2)}</span></div>
+      <div class="bal-pill ${bc}">${bt}</div>
+      ${items?`<button class="expand-btn" onclick="toggleDetail(this)">▶ Show itemized</button><div class="detail-panel">${items}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function toggleDetail(btn) {
+  const open = btn.nextElementSibling.classList.toggle('open');
+  btn.textContent = (open?'▼ Hide':'▶ Show') + ' itemized';
+}
+
+// ══ ANALYSIS ══════════════════════════════════════════════════════
+function renderAnalysis() {
+  const t = trip(); if (!t) return;
+  const sc = settleCcy();
+  const active = t.expenses.filter(e=>!e.skip);
+  const grand  = active.reduce((s,e)=>s+e.totalSettle,0);
+
+  // By currency
+  const byCcy={};
+  active.forEach(e=>{ byCcy[e.ccy]=(byCcy[e.ccy]||0)+e.totalSettle; });
+
+  // By person
+  const byPerson = people().map((p,i)=>({
+    name:p.name, color:p.color,
+    paid: active.reduce((s,e)=>s+e.paid[i].settle,0),
+    share:active.reduce((s,e)=>s+(e.shares[i]||0),0)
+  }));
+  const maxPaid = Math.max(...byPerson.map(p=>p.paid),1);
+
+  // By day
+  const byDay={};
+  active.forEach(e=>{ if(e.date) byDay[e.date]=(byDay[e.date]||0)+e.totalSettle; });
+  const dayEntries=Object.entries(byDay).sort(([a],[b])=>a.localeCompare(b));
+  const maxDay=Math.max(...dayEntries.map(([,v])=>v),1);
+
+  function bars(entries, maxVal, getColor) {
+    return entries.map(([label,val])=>`
+      <div class="bar-row">
+        <div class="bar-label">${label}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${val/maxVal*100}%;background:${getColor(label)}"></div></div>
+        <div class="bar-val">${sc.code} ${val.toFixed(0)}</div>
+      </div>`).join('');
+  }
+
+  const ccyColors={EUR:'#065F46',GBP:'#5B21B6',USD:'#1E40AF'};
+  const dayLabel = d => { try { return new Date(d+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}); } catch{return d;} };
+
+  document.getElementById('analysisGrid').innerHTML = `
+    <div class="a-card">
+      <h3>By Currency</h3>
+      ${bars(Object.entries(byCcy).sort(([,a],[,b])=>b-a), Math.max(...Object.values(byCcy),1), l=>ccyColors[l]||'#78716C')}
+    </div>
+    <div class="a-card">
+      <h3>Who Paid</h3>
+      ${byPerson.map(p=>`
+        <div class="bar-row">
+          <div class="bar-label" style="color:${p.color};font-weight:600">${p.name}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${p.paid/maxPaid*100}%;background:${p.color}"></div></div>
+          <div class="bar-val">${sc.code} ${p.paid.toFixed(0)}</div>
+        </div>`).join('')}
+    </div>
+    <div class="a-card">
+      <h3>By Day</h3>
+      ${dayEntries.length ? bars(dayEntries.map(([d,v])=>[dayLabel(d),v]), maxDay, ()=>'#3B82F6') : '<p style="color:var(--muted);font-size:13px">No dates entered</p>'}
+    </div>
+    <div class="a-card">
+      <h3>Quick Stats</h3>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="stat-label">Total</div><div class="stat-val">${sc.code} ${grand.toFixed(2)}</div></div>
+        <div class="stat-item"><div class="stat-label">Per person</div><div class="stat-val">${sc.code} ${people().length?(grand/people().length).toFixed(2):'0'}</div></div>
+        <div class="stat-item"><div class="stat-label">Expenses</div><div class="stat-val">${active.length}</div></div>
+        <div class="stat-item"><div class="stat-label">Skipped</div><div class="stat-val">${t.expenses.filter(e=>e.skip).length}</div></div>
+        <div class="stat-item"><div class="stat-label">Days</div><div class="stat-val">${Object.keys(byDay).length}</div></div>
+        <div class="stat-item"><div class="stat-label">Settling in</div><div class="stat-val">${sc.code}</div></div>
+      </div>
+    </div>`;
+}
+
+// ══ TABS ══════════════════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['expenses','settlement','analysis'][i]===name));
+  document.getElementById('tab-expenses').style.display  = name==='expenses'  ? '' : 'none';
+  document.getElementById('tab-settlement').style.display = name==='settlement' ? '' : 'none';
+  document.getElementById('tab-analysis').style.display   = name==='analysis'   ? '' : 'none';
+  if (name==='settlement') renderSettlement();
+  if (name==='analysis')   renderAnalysis();
+}
+
+// ══ EXPORT / IMPORT ═══════════════════════════════════════════════
+function exportData() {
+  const blob = new Blob([JSON.stringify(DB, null, 2)], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download='trip-split-backup.json'; a.click();
+  URL.revokeObjectURL(url);
+  toast('Exported!');
+}
+function importData(input) {
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try {
+      DB=JSON.parse(ev.target.result);
+      save();
+      buildTripSelect();
+      if (DB.trips.length) switchTrip(DB.trips[0].id);
+      toast('Imported!');
+    } catch(e) { toast('Could not read file'); }
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+
+// ══ TOAST ═════════════════════════════════════════════════════════
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+// ══ BOOT ══════════════════════════════════════════════════════════
+window.onload = async () => {
+  document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
+  try {
+    await loadTrips();
+    buildTripSelect();
+    if (trips.length) {
+      currentTripId = trips[0].id;
+      checkAuth();
+      // enterApp will call switchTrip after auth passes
+      const orig = enterApp;
+      window.enterApp = async () => { orig(); await switchTrip(currentTripId); };
+    } else {
+      enterApp(); // no trips yet, go straight in
+      toast('Welcome! Create your first trip →');
+    }
+  } catch(e) {
+    document.getElementById('authScreen').classList.remove('hidden');
+    document.getElementById('authMsg').textContent = '⚠ Could not connect — check your Supabase keys.';
+    document.getElementById('authMsg').style.color = '#F87171';
+  }
+};
+</script>
+</body>
+</html>
