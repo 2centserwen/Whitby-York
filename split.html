@@ -557,7 +557,7 @@ function buildPeopleChips() {
     <div class="person-chip" style="border-color:${p.color}30;background:${p.color}0A">
       <span class="pdot" style="background:${p.color}"></span>
       <input class="chip-name-input" value="${p.name}" style="color:${p.color}"
-             oninput="renamePerson('${p.id}',this.value)">
+             onchange="renamePerson('${p.id}',this.value)">
       ${t.people.length > 2 ? `<button class="chip-rm" onclick="removePerson('${p.id}')">×</button>` : ''}
     </div>`).join('');
   if (t.people.length < 4) wrap.innerHTML += `<button class="add-chip-btn" onclick="addPerson()">＋ Person</button>`;
@@ -1012,27 +1012,12 @@ function switchTab(name) {
 
 // ══ EXPORT / IMPORT ═══════════════════════════════════════════════
 function exportData() {
-  const blob = new Blob([JSON.stringify(DB, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({trips, expenses}, null, 2)], {type:'application/json'});
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href=url; a.download='trip-split-backup.json'; a.click();
   URL.revokeObjectURL(url);
   toast('Exported!');
-}
-function importData(input) {
-  const file=input.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    try {
-      DB=JSON.parse(ev.target.result);
-      save();
-      buildTripSelect();
-      if (DB.trips.length) switchTrip(DB.trips[0].id);
-      toast('Imported!');
-    } catch(e) { toast('Could not read file'); }
-  };
-  reader.readAsText(file);
-  input.value='';
 }
 
 // ══ TOAST ═════════════════════════════════════════════════════════
@@ -1050,15 +1035,18 @@ window.onload = async () => {
     buildTripSelect();
     if (trips.length) {
       currentTripId = trips[0].id;
-      checkAuth();
-      // enterApp will call switchTrip after auth passes
+      // Patch enterApp so it loads expenses after auth
       const orig = enterApp;
       window.enterApp = async () => { orig(); await switchTrip(currentTripId); };
+      checkAuth();
     } else {
-      enterApp(); // no trips yet, go straight in
+      // No trips yet — go straight into the app and prompt to create one
+      enterApp();
+      showNewTripModal();
       toast('Welcome! Create your first trip →');
     }
   } catch(e) {
+    console.error(e);
     document.getElementById('authScreen').classList.remove('hidden');
     document.getElementById('authMsg').textContent = '⚠ Could not connect — check your Supabase keys.';
     document.getElementById('authMsg').style.color = '#F87171';
