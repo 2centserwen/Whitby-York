@@ -81,7 +81,7 @@ body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height
 .ccy-chip.is-settle{border-color:#F59E0B;background:#FFFBEB;}
 
 /* ── FORM ── */
-.form-grid{display:grid;grid-template-columns:2fr 1fr 90px;gap:10px;margin-bottom:12px;}
+.form-grid{display:grid;grid-template-columns:2fr 1fr 1fr 90px;gap:10px;margin-bottom:12px;}
 @media(max-width:800px){.form-grid{grid-template-columns:1fr 1fr;}}
 .field{display:flex;flex-direction:column;gap:4px;}
 .field label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);}
@@ -271,6 +271,12 @@ td.mono{font-family:var(--mono);font-size:12px;}
       </div>
       <div class="form-grid">
         <div class="field"><label>Description</label><input id="fDesc" type="text" placeholder="e.g. Dinner"></div>
+        <div class="field"><label>Category</label>
+          <select id="fCat">
+            <option>Food</option><option>Transport</option><option>Accommodation</option>
+            <option>Activities</option><option>Shopping</option><option>Other</option>
+          </select>
+        </div>
         <div class="field"><label>Date</label><input id="fDate" type="date"></div>
         <div class="field"><label>Skip?</label>
           <select id="fSkip"><option value="">Count it</option><option value="skip">Skip</option></select>
@@ -339,7 +345,7 @@ td.mono{font-family:var(--mono);font-size:12px;}
 
 <script>
 // ══ CONFIG — fill these in ═════════════════════════════════════════
-const SUPABASE_URL    = 'https://ttdynmsrkabukswmhuyh.supabase.co';       // https://xxxx.supabase.co
+const SUPABASE_URL    = 'https://ttdynmsrkabukswmhuyh.supabase.co';  
 const SUPABASE_KEY    = 'sb_publishable_pYSNnLZ4qYMrQ1l6rfXxPg_wW8538-w';  
 const MASTER_PASSWORD = 'split2026';               // change this!
 
@@ -453,13 +459,21 @@ async function loadTrips() {
 }
 
 async function loadExpenses(tripId) {
-  const rows = await sb(`expenses?trip_id=eq.${tripId}&select=*&order=created_at.asc`);
+  const rows = await sb(`expenses?trip_id=eq.${tripId}&select=*&order=date.asc,created_at.asc`);
   expenses = rows.map(r => ({
     id: r.id, desc: r.description, date: r.date || '',
+    cat: r.category || 'Other',
     ccy: r.ccy, rate: r.rate, paid: r.paid,
     totalSettle: r.total_settle, shares: r.shares,
     isEven: r.is_even, included: r.included, skip: r.skip,
   }));
+  // Sort by date, undated entries go to bottom
+  expenses.sort((a,b) => {
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return a.date.localeCompare(b.date);
+  });
 }
 
 async function saveTripMeta(t) {
@@ -470,10 +484,20 @@ async function saveTripMeta(t) {
   });
 }
 
+function sortExpenses() {
+  expenses.sort((a, b) => {
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return a.date.localeCompare(b.date);
+  });
+}
+
 async function upsertExpense(e) {
   const row = {
     trip_id: currentTripId, description: e.desc,
     date: e.date || null, ccy: e.ccy, rate: e.rate,
+    category: e.cat || 'Other',
     paid: e.paid, total_settle: e.totalSettle,
     shares: e.shares, is_even: e.isEven,
     included: e.included, skip: e.skip,
@@ -635,6 +659,7 @@ function resetForm() {
   editIdx = null;
   formState = { included: people().map(() => true), overrides: people().map(() => null) };
   document.getElementById('fDesc').value = '';
+  document.getElementById('fCat').value  = 'Food';
   document.getElementById('fSkip').value = '';
   document.getElementById('formTitle').textContent = 'Add Expense';
   document.getElementById('submitLabel').textContent = 'Add Expense';
@@ -746,6 +771,7 @@ function resolveShares(totalSettle) {
 async function submitExpense() {
   const t = trip(); if (!t) return;
   const desc = document.getElementById('fDesc').value.trim();
+  const cat  = document.getElementById('fCat').value;
   const date = document.getElementById('fDate').value;
   const skip = document.getElementById('fSkip').value === 'skip';
   const ccy  = getSelectedCcy();
@@ -765,12 +791,12 @@ async function submitExpense() {
   const evenSh  = +(totalSettle / inclCnt).toFixed(2);
   const isEven  = formState.included.every((_,i) => !formState.included[i] || Math.abs(shares[i]-evenSh)<0.02);
 
-  const entry = { id: editIdx !== null ? expenses[editIdx].id : null, desc, date, ccy, rate, paid, totalSettle, shares, isEven, included:[...formState.included], skip };
+  const entry = { id: editIdx !== null ? expenses[editIdx].id : null, desc, cat, date, ccy, rate, paid, totalSettle, shares, isEven, included:[...formState.included], skip };
   try {
     await upsertExpense(entry);
     if (editIdx !== null) { expenses[editIdx] = entry; toast('Updated!'); }
     else { expenses.push(entry); toast('Added!'); }
-    resetForm(); renderAll();
+    sortExpenses(); resetForm(); renderAll();
   } catch(e) { toast('Save error: '+e.message); setSyncStatus('err'); }
 }
 
@@ -779,6 +805,7 @@ function editExpense(idx) {
   const e = t.expenses[idx];
   editIdx = idx;
   document.getElementById('fDesc').value  = e.desc;
+  document.getElementById('fCat').value   = e.cat || 'Other';
   document.getElementById('fDate').value  = e.date;
   document.getElementById('fSkip').value  = e.skip ? 'skip' : '';
   document.getElementById('formTitle').textContent  = 'Edit Expense';
@@ -816,7 +843,7 @@ function renderTableHead() {
   const pc = people().map(p=>`<th class="h-paid">${p.name} paid</th>`).join('');
   const sc = people().map(p=>`<th class="h-share">${p.name} owes</th>`).join('');
   document.getElementById('tableHead').innerHTML = `
-    <th>Date</th><th>Description</th><th class="h-paid">CCY</th>${pc}${sc}<th></th>`;
+    <th>Date</th><th>Description</th><th>Category</th><th class="h-paid">CCY</th>${pc}${sc}<th></th>`;
 }
 
 function renderTableBody() {
@@ -840,9 +867,11 @@ function renderTableBody() {
     }).join('');
     const tags = (e.skip?`<span class="skip-badge">skip</span>`:'') + (!e.isEven&&!e.skip?`<span class="custom-badge">custom</span>`:'');
     const ccyColor = {EUR:'#065F46',GBP:'#5B21B6',USD:'#1E40AF'};
+    const catColor = {Food:'#F59E0B',Transport:'#3B82F6',Accommodation:'#8B5CF6',Activities:'#10B981',Shopping:'#E8547A',Other:'#78716C'};
     return `<tr class="${editing?'is-editing':''}">
       <td class="mono" style="color:var(--muted);font-size:11px">${e.date||'—'}</td>
-      <td style="font-weight:500;max-width:180px">${e.desc}${tags}</td>
+      <td style="font-weight:500;max-width:160px">${e.desc}${tags}</td>
+      <td><span style="font-size:11px;color:${catColor[e.cat]||'#78716C'};font-weight:600">${e.cat||'Other'}</span></td>
       <td class="c-paid"><span class="ccy-badge" style="background:${ccyColor[e.ccy]||'#78716C'}20;color:${ccyColor[e.ccy]||'#78716C'}">${e.ccy}</span></td>
       ${pc}${shc}
       <td><div style="display:flex;gap:3px">
